@@ -13,7 +13,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS s
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['ebuehler@air.org', 'mtrihn@air.org'],
+    'email': ['ebuehler@air.org', 'mtrihn@air.org', 'gchickering@air.org'],
     'email_on_failure': TRUE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
@@ -31,7 +31,7 @@ def links():
     '''
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
     '''
-    ssh = SSHHook(ssh_conn_id="sas1buehlere")
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
     ssh_client = None
     print(ssh)
     try:
@@ -52,7 +52,7 @@ def dat():
     '''
     Purpose: execute ccd_data_downloader.py on command line to download CCD data 
     '''
-    ssh = SSHHook(ssh_conn_id="sas1buehlere")
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
     ssh_client = None
     print(ssh)
     try:
@@ -75,7 +75,7 @@ def nonfiscal():
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
-    ssh = SSHHook(ssh_conn_id="sas1buehlere")
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
     ssh_client = None
     print(ssh)
     try:
@@ -95,7 +95,7 @@ def nonfiscal_wide():
     '''
     Purpose: execute ccd_school_convert.sas on command line to generate nonfiscal wide data from nonfiscal long data. 
     '''
-    ssh = SSHHook(ssh_conn_id="sas1buehlere")
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
     ssh_client = None
     print(ssh)
     try:

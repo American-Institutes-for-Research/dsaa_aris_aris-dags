@@ -13,7 +13,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['ebuehler@air.org'],
+    'email': ['ebuehler@air.org', 'gchickering@air.org'],
     'email_on_failure': FALSE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
@@ -35,7 +35,7 @@ class code_executer:
         self.type = type 
 
     def execute_command(self): 
-        ssh = SSHHook(ssh_conn_id="sas1buehlere")
+        ssh = SSHHook(ssh_conn_id="sas1chickeringg")
         ssh_client = None
         print(ssh)
         try:
