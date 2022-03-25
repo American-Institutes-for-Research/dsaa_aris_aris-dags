@@ -13,7 +13,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS s
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['ebuehler@air.org', 'mtrihn@air.org'],
+    'email': ['ebuehler@air.org', 'mtrihn@air.org', 'gchickering@air.org'],
     'email_on_failure': TRUE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
