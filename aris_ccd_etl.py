@@ -303,11 +303,11 @@ load_mrt = PythonOperator(
 )
 
 # Generate HRT file 
-gen_hrt = PythonOperator(
-    task_id='gen_hrt',
-    python_callable=hrt,
-    dag=dag
-)
+# gen_hrt = PythonOperator(
+#     task_id='gen_hrt',
+#     python_callable=hrt,
+#     dag=dag
+# )
 
 # DAG Dependancy
 download_links >> download_dat 
