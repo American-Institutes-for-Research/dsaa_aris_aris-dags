@@ -113,7 +113,7 @@ def nonfiscal_wide():
 
 def nonfiscal_school(): 
     '''
-    Purpose: execute ccd_school_convert.sas on command line to generate nonfiscal wide data from nonfiscal long data. 
+    Purpose: execute ccd_nonfiscal_school.sas on command line to generate nonfiscal wide data from nonfiscal long data. 
     '''
     ssh = SSHHook(ssh_conn_id="sas1chickeringg")
     ssh_client = None
