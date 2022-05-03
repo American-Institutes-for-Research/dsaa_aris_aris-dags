@@ -217,6 +217,86 @@ def mrt():
         if ssh_client:
             ssh_client.close()
 
+def mrt_nonfiscal_district():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_district.py' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()            
+
+def mrt_nonfiscal_state():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_state.py' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()   
+            
+def mrt_nonfiscal_school():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_school.py' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()             
+
+def mrt_fiscal_state():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    ssh = SSHHook(ssh_conn_id="sas1chickeringg")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_fiscal_state.py' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()                     
+
 def hrt():
     '''
     Purpose: execute gen_hrt.py on command line to generate hrt files from mrt loaded in the database. 
@@ -296,12 +376,34 @@ gen_fiscal = PythonOperator(
 )
 
 # Create MRT and load to Database with Python 
-load_mrt = PythonOperator(
-    task_id='load_mrt',
-    python_callable=mrt,
-    dag=dag
+# load_mrt = PythonOperator(
+#     task_id='load_mrt',
+#     python_callable=mrt,
+#     dag=dag
+# )
+
+load_mrt_nonfiscal_district = PythonOperator(
+    task_id = "load_mrt_nonfiscal_district",
+    python_callable = mrt_nonfiscal_district,
+    dag = dag
 )
 
+load_mrt_nonfiscal_state = PythonOperator(
+    task_id = "load_mrt_nonfiscal_state",
+    python_callable = mrt_nonfiscal_state,
+    dag = dag
+)
+
+load_mrt_fiscal_state = PythonOperator(
+    task_id = "load_mrt_fiscal_state",
+    python_callable = mrt_fiscal_state,
+    dag = dag
+)
+load_mrt_nonfiscal_school = PythonOperator(
+    task_id = "load_mrt_nonfiscal_school",
+    python_callable = mrt_nonfiscal_school,
+    dag = dag
+)
 # Generate HRT file 
 # gen_hrt = PythonOperator(
 #     task_id='gen_hrt',
@@ -311,6 +413,7 @@ load_mrt = PythonOperator(
 
 # DAG Dependancy
 download_links >> download_dat 
-download_dat >> gen_nonfiscal >> gen_nonfiscal_wide >> gen_nonfiscal_school >> load_mrt 
-download_dat >> gen_nonfiscal_district >> gen_district_wide
-download_dat >> gen_fiscal
+download_dat >> gen_nonfiscal >> gen_nonfiscal_wide >> gen_nonfiscal_school >> load_mrt_nonfiscal_school
+download_dat >> gen_nonfiscal_district >> gen_district_wide >> load_mrt_nonfiscal_district
+download_dat >> gen_fiscal >> load_mrt_fiscal_state
+gen_nonfiscal >> load_mrt_nonfiscal_state
