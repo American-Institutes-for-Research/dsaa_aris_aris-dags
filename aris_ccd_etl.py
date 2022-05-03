@@ -399,11 +399,11 @@ load_mrt_fiscal_state = PythonOperator(
     python_callable = mrt_fiscal_state,
     dag = dag
 )
-load_mrt_nonfiscal_school = PythonOperator(
-    task_id = "load_mrt_nonfiscal_school",
-    python_callable = mrt_nonfiscal_school,
-    dag = dag
-)
+# load_mrt_nonfiscal_school = PythonOperator(
+#     task_id = "load_mrt_nonfiscal_school",
+#     python_callable = mrt_nonfiscal_school,
+#     dag = dag
+# )
 # Generate HRT file 
 # gen_hrt = PythonOperator(
 #     task_id='gen_hrt',
@@ -413,7 +413,8 @@ load_mrt_nonfiscal_school = PythonOperator(
 
 # DAG Dependancy
 download_links >> download_dat 
-download_dat >> gen_nonfiscal >> gen_nonfiscal_wide >> gen_nonfiscal_school >> load_mrt_nonfiscal_school
+download_dat >> gen_nonfiscal >> gen_nonfiscal_wide >> gen_nonfiscal_school 
 download_dat >> gen_nonfiscal_district >> gen_district_wide >> load_mrt_nonfiscal_district
 download_dat >> gen_fiscal >> load_mrt_fiscal_state
 gen_nonfiscal >> load_mrt_nonfiscal_state
+#>> load_mrt_nonfiscal_school
