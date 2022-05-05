@@ -394,11 +394,11 @@ load_mrt_nonfiscal_state = PythonOperator(
     dag = dag
 )
 
-load_mrt_fiscal_state = PythonOperator(
-    task_id = "load_mrt_fiscal_state",
-    python_callable = mrt_fiscal_state,
-    dag = dag
-)
+# load_mrt_fiscal_state = PythonOperator(
+#     task_id = "load_mrt_fiscal_state",
+#     python_callable = mrt_fiscal_state,
+#     dag = dag
+# )
 # load_mrt_nonfiscal_school = PythonOperator(
 #     task_id = "load_mrt_nonfiscal_school",
 #     python_callable = mrt_nonfiscal_school,
