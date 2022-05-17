@@ -22,7 +22,7 @@ default_args = {
 }
 
 # Define Main DAG for CCD pipeline 
-enrollment_dag = DAG(dag_id='aris_ipeds_enrollment_etl',
+dag = DAG(dag_id='aris_ipeds_enrollment_etl',
           default_args=default_args,
         #   schedule_interval='0,10,20,30,40,50 * * * *',
           dagrun_timeout=timedelta(seconds=600))
@@ -51,7 +51,7 @@ def sas_enrollment():
 gen_enrollment = PythonOperator(
     task_id='gen_enrollment',
     python_callable=sas_enrollment,
-    dag=enrollment_dag
+    dag=dag
 )
 
 # DAG Dependancy
