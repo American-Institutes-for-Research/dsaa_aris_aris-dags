@@ -49,7 +49,7 @@ def sas_finance():
 
 # Generate Nonfiscal state from CCD Data with SAS
 gen_finance = PythonOperator(
-    task_id='gen_enrollment',
+    task_id='gen_finance',
     python_callable=sas_finance,
     dag=dag
 )

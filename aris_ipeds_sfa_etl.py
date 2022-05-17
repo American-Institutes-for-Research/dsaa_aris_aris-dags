@@ -49,7 +49,7 @@ def sas_sfa():
 
 # Generate Nonfiscal state from CCD Data with SAS
 gen_sfa = PythonOperator(
-    task_id='gen_enrollment',
+    task_id='gen_sfa',
     python_callable=sas_sfa,
     dag=dag
 )

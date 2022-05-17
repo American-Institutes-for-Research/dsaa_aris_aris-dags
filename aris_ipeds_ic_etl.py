@@ -49,7 +49,7 @@ def sas_IC():
 
 # Generate Nonfiscal state from CCD Data with SAS
 gen_IC = PythonOperator(
-    task_id='gen_enrollment',
+    task_id='gen_IC',
     python_callable=sas_IC,
     dag=dag
 )
