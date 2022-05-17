@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime
-from pickle import FALSE, TRUE
+from pickle import TRUE
 import airflow
 import code_executer
 from airflow import DAG
@@ -13,8 +13,8 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['ebuehler@air.org', 'gchickering@air.org'],
-    'email_on_failure': FALSE,
+    'email': ['mtrihn@air.org', 'gchickering@air.org'],
+    'email_on_failure': TRUE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
     'retries': 0,
@@ -22,48 +22,71 @@ default_args = {
 }
 
 # Define Main DAG for CCD pipeline 
-dag = DAG(dag_id='aris_ipeds_etl',
+dag = DAG(dag_id='aris_ccd_etl',
           default_args=default_args,
         #   schedule_interval='0,10,20,30,40,50 * * * *',
           dagrun_timeout=timedelta(seconds=600))
 
 
-class code_executer:
-    def __init__(self, service_dir, file_ex, sub_dir):
-        self.dir = service_dir
-        self.command =  f'cd {service_dir}\\{sub_dir} && {file_ex}' 
-        self.type = type 
-
-    def execute_command(self): 
-        ssh = SSHHook(ssh_conn_id="sas1chickeringg")
-        ssh_client = None
-        print(ssh)
-        try:
-            ssh_client = ssh.get_conn()
-            ssh_client.load_system_host_keys()
-            stdin, stdout, stderr = ssh_client.exec_command(self.command)
-            out = stdout.read().decode().strip()
-            error = stderr.read().decode().strip()
-            print(out)
-            print(error)
-        finally:
-            if ssh_client:
-                ssh_client.close()
+# def links():
+#     '''
+#     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
+#     '''
+#     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+#     ssh_client = None
+#     print(ssh)
+#     try:
+#         ssh_client = ssh.get_conn()
+#         ssh_client.load_system_host_keys()
+#         command = 'cd ' +  SERVICE_GIT_DIR + ' && python ' + '\\IO\\ccd_data_list_downloader.py' 
+#         stdin, stdout, stderr = ssh_client.exec_command(command)
+#         out = stdout.read().decode().strip()
+#         error = stderr.read().decode().strip()
+#         print(out)
+#         print(error)
+#     finally:
+#         if ssh_client:
+#             ssh_client.close()
 
 
-def t318():
+# def dat():
+#     '''
+#     Purpose: execute ccd_data_downloader.py on command line to download CCD data 
+#     '''
+#     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+#     ssh_client = None
+#     print(ssh)
+#     try:
+        
+#         ssh_client = ssh.get_conn()
+#         ssh_client.load_system_host_keys()
+#         command = 'cd ' +  SERVICE_GIT_DIR + ' && python ' +  'IO\\ccd_data_downloader.py'
+#         stdin, stdout, stderr = ssh_client.exec_command(command)
+#         out = stdout.read().decode().strip()
+#         error = stderr.read().decode().strip()
+#         print(out)
+#         print(error)
+#     finally:
+#         if ssh_client:
+#             ssh_client.close()
+
+def Completion_Survey():
     '''
-    Purpose: execute t318 SAS code 
+    Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
-    exe = code_executer(SERVICE_GIT_DIR , 'sas t318-40-IPEDS-C2019-C2020-D21-MRT_2021_09_14', 'sas')
-    exe.execute_command() 
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21' +'\\Completion Survey SAS code'  +' && sas ccd_nonfiscal_state_RE2'
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()
 
-
-# Execute t318
-execute_table = PythonOperator(
-    task_id='execute_table',
-    python_callable=t318,
-    dag=dag
-)
-
-execute_table
