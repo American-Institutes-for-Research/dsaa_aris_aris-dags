@@ -46,6 +46,25 @@ def sas_HR():
     finally:
         if ssh_client:
             ssh_client.close()
+def mrt_HR():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_hr.py' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()     
 
 # Generate Nonfiscal state from CCD Data with SAS
 gen_HR = PythonOperator(
@@ -53,6 +72,11 @@ gen_HR = PythonOperator(
     python_callable=sas_HR,
     dag=dag
 )
+gen_HR_mrt = PythonOperator(
+    task_id = 'load_mrt_HR',
+    python_callable=mrt_HR,
+    dag = dag
+)
 
 # DAG Dependancy
-gen_HR
+gen_HR >> gen_HR_mrt

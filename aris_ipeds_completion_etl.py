@@ -75,7 +75,7 @@ gen_completion = PythonOperator(
 )
 
 gen_completion_mrt = PythonOperator(
-    task_id='gen_completion_mrt',
+    task_id='load_mrt_completion',
     python_callable=mrt_completion,
     dag=dag
 )
