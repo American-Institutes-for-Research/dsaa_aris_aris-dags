@@ -7,13 +7,15 @@ from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
+from airflow.operators.email_operator import EmailOperator
+
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS server's C drive
 
 # default args
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': ['mtrihn@air.org', 'gchickering@air.org'],
+    'email': [ 'gchickering@air.org'],
     'email_on_failure': TRUE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
@@ -78,6 +80,13 @@ gen_IC_mrt = PythonOperator(
     python_callable=mrt_IC,
     dag=dag
 )
+send_email = EmailOperator( 
+task_id='send_email', 
+to='gchickering@air.org', 
+subject='ingestion complete', 
+html_content="Date: {{ ds }}", 
+dag=dag
+)
 
 # DAG Dependancy
-gen_IC >> gen_IC_mrt
+gen_IC >> gen_IC_mrt >> send_email
