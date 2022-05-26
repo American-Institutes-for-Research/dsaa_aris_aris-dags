@@ -34,7 +34,7 @@ dag = DAG(dag_id='aris_email_trial',
 
 send_email = EmailOperator( 
 task_id='send_email', 
-to='gchickering@air.org', 
+to='grahamchickering@gmail.com', 
 subject='ingestion complete', 
 html_content="Date: {{ ds }}", 
 dag=dag
