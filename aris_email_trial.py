@@ -15,7 +15,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'email': [ 'grahamchickering@gmail.com'],
+    'email': [ 'gchickering@air.org'],
     'email_on_failure': TRUE,
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
@@ -34,7 +34,7 @@ dag = DAG(dag_id='aris_email_trial',
 
 send_email = EmailOperator( 
 task_id='send_email', 
-to='grahamchickering@gmail.com', 
+to='gchickering@air.org', 
 subject='ingestion complete', 
 html_content="Date: {{ ds }}", 
 dag=dag
