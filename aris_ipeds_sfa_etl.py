@@ -72,6 +72,7 @@ def mrt_SFA():
 
 def sas_log_check():
     error_strings= ["Errors found"]
+    main_flag = 0
 
     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
     ssh_client = None
@@ -82,23 +83,29 @@ def sas_log_check():
         command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21' + ' && python sas_parser.py "SFA Survey SAS code"'
         print(command)
         stdin, stdout, stderr = ssh_client.exec_command(command)
-        #out = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
         print("we at lines")
         stdout.channel.recv_exit_status()
         lines = stdout.readlines()
         for line in lines:
             if any(strings in line for strings in error_strings):
-                print(line)
-        #print(out)
+                main_flag = 1
+                #print(line)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
         print(error)
+        
 
     finally:
         if ssh_client:
             ssh_client.close() 
+            return(main_flag)
 
 def execute():
-    if condition:
+    main_flag = sas_log_check()
+    print("this is the main flag")
+    print(main_flag)
+    if main_flag == 1:
         raise AirflowSkipException  
 
 
@@ -116,7 +123,7 @@ gen_sfa_mrt = PythonOperator(
 
 sas_log_parser = ShortCircuitOperator(
         task_id="check_sas_scripts",
-        python_callable=sas_log_check,
+        python_callable=execute,
         dag = dag
     )
 
