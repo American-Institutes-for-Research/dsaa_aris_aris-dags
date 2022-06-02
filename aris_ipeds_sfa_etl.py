@@ -85,6 +85,7 @@ def sas_log_check():
         error = stderr.read().decode().strip()
         print("we at out")
         print(out)
+        print("this is the errors")
         print(error)
         stdout.channel.recv_exit_status()
         print('we are here')
