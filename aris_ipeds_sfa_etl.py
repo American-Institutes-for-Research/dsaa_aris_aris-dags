@@ -86,7 +86,7 @@ def sas_log_check():
         print("we at out")
         print(out)
         print(error)
-        stdout_.channel.recv_exit_status()
+        stdout.channel.recv_exit_status()
         print('we are here')
         lines = stdout.readlines()
         for line in lines:
