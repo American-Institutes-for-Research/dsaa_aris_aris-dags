@@ -83,8 +83,10 @@ def sas_log_check():
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
+        print("we at out")
         print(out)
         print(error)
+        stdout_.channel.recv_exit_status()
         print('we are here')
         lines = stdout.readlines()
         for line in lines:
