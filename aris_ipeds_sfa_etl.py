@@ -89,12 +89,13 @@ def sas_log_check():
         #     if any(strings in line for strings in error_strings):
         #         main_flag = 1
         stdout2 = stdout
-        out = stdout.read().decode().strip()
+        out = stdout.readlines().decode().strip()
         error = stderr.read().decode().strip()
-        print(out)
+        #print(out)
         print(error)
-        lines = stdout2.readlines()
-        for line in lines:
+        #lines = stdout2.readlines()
+        for line in out:
+            print(line)
             if any(strings in line for strings in error_strings):
                 main_flag = 1
                 print("this is the line")
