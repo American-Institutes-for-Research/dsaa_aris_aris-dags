@@ -83,8 +83,7 @@ def sas_log_check():
         command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21' + ' && python sas_parser.py "SFA Survey SAS code"'
         print(command)
         stdin, stdout, stderr = ssh_client.exec_command(command)
-        print("we at lines")
-        stdout.channel.recv_exit_status()
+        # stdout.channel.recv_exit_status()
         lines = stdout.readlines()
         for line in lines:
             if any(strings in line for strings in error_strings):
