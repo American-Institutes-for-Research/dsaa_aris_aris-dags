@@ -85,6 +85,7 @@ def sas_log_check():
         error = stderr.read().decode().strip()
         print(out)
         print(error)
+        print('we are here')
         lines = stdout.readlines()
         for line in lines:
             print(line)
