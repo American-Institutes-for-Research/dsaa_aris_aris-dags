@@ -113,9 +113,13 @@ def execute():
     main_flag2 = sas_log_check()
     print("this is the main2 flag")
     print(main_flag2)
+
     if main_flag2 == 1:
-        print("Airflow exception here")
-        raise AirflowSkipException  
+        #print("Airflow exception here")
+        #raise AirflowSkipException  
+        return(False)
+    else:
+        return(True)
 
 
 # Generate Nonfiscal state from CCD Data with SAS
