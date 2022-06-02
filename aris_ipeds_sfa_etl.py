@@ -71,6 +71,7 @@ def mrt_SFA():
             ssh_client.close()   
 
 def sas_log_check():
+    error_strings= ["Errors found"]
 
     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
     ssh_client = None
@@ -83,15 +84,13 @@ def sas_log_check():
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
-        print("we at out")
-        print(out)
-        print("this is the errors")
-        print(error)
-        stdout.channel.recv_exit_status()
-        print('we are here')
-        lines = stdout.readlines()
+        print("we at lines")
+        lines = out.readlines()
         for line in lines:
+            
             print(line)
+        #print(out)
+        print(error)
 
     finally:
         if ssh_client:
