@@ -88,9 +88,7 @@ def sas_log_check():
         lines = stdout.readlines()
         for line in lines:
             if any(strings in line for strings in error_strings):
-                print("got to here")
                 main_flag = 1
-                print(line)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
         print(out)
@@ -130,4 +128,4 @@ sas_log_parser = ShortCircuitOperator(
 
 # DAG Dependancy
 #gen_sfa >> gen_sfa_mrt
-gen_sfa >> sas_log_parser
+gen_sfa >> sas_log_parser >> gen_sfa_mrt
