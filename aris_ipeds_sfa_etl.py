@@ -103,10 +103,10 @@ def sas_log_check():
             return(main_flag)
 
 def execute():
-    main_flag = sas_log_check()
-    print("this is the main flag")
-    print(main_flag)
-    if main_flag == 1:
+    main_flag2 = sas_log_check()
+    print("this is the main2 flag")
+    print(main_flag2)
+    if main_flag2 == 1:
         raise AirflowSkipException  
 
 
