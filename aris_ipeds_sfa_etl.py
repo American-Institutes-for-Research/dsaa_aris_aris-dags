@@ -103,7 +103,7 @@ gen_sfa_mrt = PythonOperator(
 sas_log_parser = ShortCircuitOperator(
         task_id="check_sas_scripts",
         python_callable=sas_log_check,
-        op_kwargs={},
+        dag = dag
     )
 
 # DAG Dependancy
