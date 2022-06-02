@@ -93,6 +93,9 @@ def sas_log_check():
         error = stderr.read().decode().strip()
         print(out)
         print(error)
+        for line in stdout:
+            out2 = line.readline().decode().strip()
+            print(out2)
         #lines = stdout2.readlines()
         # for line in out:
         #     print(line)
@@ -111,6 +114,7 @@ def execute():
     print("this is the main2 flag")
     print(main_flag2)
     if main_flag2 == 1:
+        print("Airflow exception here")
         raise AirflowSkipException  
 
 
