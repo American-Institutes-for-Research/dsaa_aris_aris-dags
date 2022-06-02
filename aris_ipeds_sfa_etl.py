@@ -7,8 +7,9 @@ from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.operators.python import ShortCircuitOperator
-
+from airflow.exceptions import AirflowSkipException
 from airflow.contrib.hooks.ssh_hook import SSHHook
+
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS server's C drive
 
 # default args
@@ -80,15 +81,21 @@ def sas_log_check():
         command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21' + ' && python sas_parser.py "SFA Survey SAS code"'
         print(command)
         stdin, stdout, stderr = ssh_client.exec_command(command)
-        print("this is the command")
-        print(command)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
         print(out)
         print(error)
+        lines = stdout.readlines()
+        for line in lines:
+            print(line)
+
     finally:
         if ssh_client:
-            ssh_client.close()   
+            ssh_client.close() 
+
+def execute():
+    if condition:
+        raise AirflowSkipException  
 
 
 # Generate Nonfiscal state from CCD Data with SAS
