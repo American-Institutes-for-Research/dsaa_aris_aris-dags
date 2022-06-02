@@ -73,7 +73,6 @@ def mrt_SFA():
 def sas_log_check():
     error_strings= ["Errors found"]
     main_flag = 0
-
     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
     ssh_client = None
     print(ssh)
@@ -89,21 +88,9 @@ def sas_log_check():
             print(line.strip())
             if any(strings in line for strings in error_strings):
                 main_flag = 1
-            
-        #stdout2 = stdout
-        #out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
-        #print(out)
         print(error)
-        # for line in stdout:
-        #     out2 = line.readline().decode().strip()
-        #     print(out2)
-        #lines = stdout2.readlines()
-        # for line in out:
-        #     print(line)
-        #     if any(strings in line for strings in error_strings):
-        #         main_flag = 1
-        #         print("this is the line")
+      
         
 
     finally:
@@ -112,13 +99,8 @@ def sas_log_check():
             return(main_flag)
 
 def execute():
-    main_flag2 = sas_log_check()
-    print("this is the main2 flag")
-    print(main_flag2)
-
-    if main_flag2 == 1:
-        #print("Airflow exception here")
-        #raise AirflowSkipException  
+    main_flag = sas_log_check()
+    if main_flag == 1: 
         return(False)
     else:
         return(True)
