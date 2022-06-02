@@ -77,7 +77,8 @@ def sas_log_check():
     try:
         ssh_client = ssh.get_conn()
         ssh_client.load_system_host_keys()
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ 'python .\sas_parser.py "SFA Survey SAS code" '
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21' + 'python sas_parser.py "SFA Survey SAS code"'
+        print(command)
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
