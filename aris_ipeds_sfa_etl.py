@@ -86,7 +86,7 @@ def sas_log_check():
         stdout.channel.recv_exit_status()
         lines = stdout.readlines()
         for line in lines:
-            print(line)
+            print(line.decode().strip())
             if any(strings in line for strings in error_strings):
                 main_flag = 1
             
