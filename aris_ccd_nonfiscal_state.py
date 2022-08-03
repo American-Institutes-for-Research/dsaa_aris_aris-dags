@@ -233,24 +233,24 @@ gen_nonfiscal = PythonOperator(
 qc_sas_logs = ShortCircuitOperator(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": "False"},
+    op_kwargs= {"qc_run": QC_Run},
     
     dag=dag
 )
 
 
 # Generate Nonfiscal state from CCD Data with SAS
-qc_sas_output = PythonSensor(
+qc_sas_output = ShortCircuitOperator(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": 'False'},
+    op_kwargs= {"qc_run": QC_Run},
     dag=dag
 )
 
-qc_database = PythonSensor(
+qc_database = ShortCircuitOperator(
     task_id = "qc_database",
     python_callable = qc_database_linking,
-    op_kwargs= {"qc_database": 'False'},
+    op_kwargs= {"qc_database": QC_Run},
     trigger_rule='all_success',
     dag = dag
 )
