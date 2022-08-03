@@ -3,7 +3,7 @@ from pickle import TRUE
 import airflow
 import code_executer
 from airflow import DAG
-from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
+from airflow.operators.python import PythonOperator, PythonVirtualenvOperator, ShortCircuitOperator
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
