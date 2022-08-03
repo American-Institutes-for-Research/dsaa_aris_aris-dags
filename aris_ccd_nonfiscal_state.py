@@ -123,7 +123,7 @@ def qc_sas_logs(qc_run):
     '''
     print(qc_run)
     if(qc_run == "False"):
-        return(False)
+        return False
     else:
         error_strings= ["Errors found"]
         main_flag = 0
