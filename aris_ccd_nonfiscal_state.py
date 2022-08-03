@@ -4,7 +4,7 @@ import airflow
 import code_executer
 from airflow import DAG
 from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
-from airflow.operators.python_operator import BranchPythonOperator, EmptyOperator
+from airflow.operators.python_operator import BranchPythonOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
@@ -120,7 +120,7 @@ def qc_sas_logs(qc_sas_logs, **kwargs):
     '''
     Purpose: check output of sas log files.
     '''
-    if(qc_sas_logs == "False"):
+    if(kwargs['qc_sas_logs']== "False"):
         return(False)
     else:
         error_strings= ["Errors found"]
@@ -247,4 +247,4 @@ qc_database = PythonSensor(
 
 
 gen_nonfiscal >> qc_sas_logs >> qc_sas_output  >> load_mrt_nonfiscal_state >> qc_database
-#download_links >> download_dat >>
+#download_links >> download_dat >> 
