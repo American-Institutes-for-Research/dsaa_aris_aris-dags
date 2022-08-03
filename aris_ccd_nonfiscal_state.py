@@ -120,7 +120,8 @@ def qc_sas_logs(qc_sas_logs):
     '''
     Purpose: check output of sas log files.
     '''
-    if(qc_sas_logs== "False"):
+    if(qc_sas_logs == "False"):
+        print("We are returning a true value")
         return(True)
     else:
         error_strings= ["Errors found"]
@@ -151,7 +152,7 @@ def qc_sas_output(qc_sas_output):
     '''
     Purpose: check output of sas output files
     '''
-    if(qc_sas_output== "False"):
+    if(qc_sas_output == "False"):
         return(False)
     else:
         return(False)
@@ -232,7 +233,7 @@ qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
     op_kwargs= {"qc_sas_logs": 'False'},
-    trigger_rule='all_success',
+    #trigger_rule='all_success',
     dag=dag
 )
 
@@ -242,7 +243,7 @@ qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
     python_callable=qc_sas_output,
     op_kwargs= {"qc_sas_output": 'False'},
-    trigger_rule='all_success',
+   # trigger_rule='all_success',
     dag=dag
 )
 
