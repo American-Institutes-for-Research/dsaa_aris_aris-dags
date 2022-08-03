@@ -221,7 +221,6 @@ load_mrt_nonfiscal_state = PythonOperator(
 qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    provide_context = True,
     op_kwargs= {"qc_sas_logs": 'False'},
     dag=dag
 )
