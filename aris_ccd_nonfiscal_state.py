@@ -10,7 +10,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run = 'False'
+QC_Run = "False"
 
 # default args
 default_args = {
@@ -121,7 +121,8 @@ def qc_sas_logs(qc_run):
     '''
     Purpose: check output of sas log files.
     '''
-    print(qc_run)
+    print("qc_run" + qc_run)
+    print(qc_run == "False")
     if(qc_run == "False"):
         return False
     else:
@@ -154,7 +155,7 @@ def qc_sas_output(qc_run):
     Purpose: check output of sas output files
     '''
     if(qc_run == "False"):
-        return(False)
+        return False
     else:
         ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
         ssh_client = None
@@ -177,7 +178,7 @@ def qc_database_linking(qc_database):
     Purpose: check output of sas output files
     '''
     if(qc_database == "False"):
-        return(False)
+        return False
     else:
         ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
         ssh_client = None
