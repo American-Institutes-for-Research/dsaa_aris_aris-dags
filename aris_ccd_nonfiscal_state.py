@@ -230,11 +230,11 @@ gen_nonfiscal = PythonOperator(
 # )
 
 ##QC Steps
-qc_sas_logs = PythonSensor(
+qc_sas_logs = ShortCircuitOperator(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
     op_kwargs= {"qc_run": "False"},
-    soft_fail = True,
+    
     dag=dag
 )
 
