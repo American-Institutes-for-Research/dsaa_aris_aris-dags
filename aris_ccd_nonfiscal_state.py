@@ -10,6 +10,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
+QC_Run = False
 
 # default args
 default_args = {
@@ -229,7 +230,7 @@ gen_nonfiscal = PythonOperator(
 qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": 'False'},
+    op_kwargs= {"qc_run": QC_Run},
     dag=dag
 )
 
@@ -238,7 +239,7 @@ qc_sas_logs = PythonSensor(
 qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": 'False'},
+    op_kwargs= {"qc_run": QC_Run},
     dag=dag
 )
 
