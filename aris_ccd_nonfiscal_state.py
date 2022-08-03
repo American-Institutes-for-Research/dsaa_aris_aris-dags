@@ -116,11 +116,12 @@ def mrt_nonfiscal_state():
             ssh_client.close() 
 
 
-def qc_sas_logs(qc_sas_logs):
+def qc_sas_logs(qc_run):
     '''
     Purpose: check output of sas log files.
     '''
-    if(qc_sas_logs == "False"):
+    print(qc_run)
+    if(qc_run == "False"):
         print("We are returning a true value")
         return(True)
     else:
@@ -148,12 +149,13 @@ def qc_sas_logs(qc_sas_logs):
                 ssh_client.close() 
                 return(main_flag) 
 
-def qc_sas_output(qc_sas_output): 
+def qc_sas_output(qc_run): 
     '''
     Purpose: check output of sas output files
     '''
-    if(qc_sas_output == "False"):
-        return(False)
+    print(qc_run)
+    if(qc_run == "False"):
+        return(True)
     else:
         return(False)
     # else:
@@ -221,19 +223,18 @@ gen_nonfiscal = PythonOperator(
     dag=dag
 )
 
-load_mrt_nonfiscal_state = PythonOperator(
-    task_id = "load_mrt_nonfiscal_state",
-    python_callable = mrt_nonfiscal_state,
-    trigger_rule='all_success',
-    dag = dag
-)
+# load_mrt_nonfiscal_state = PythonOperator(
+#     task_id = "load_mrt_nonfiscal_state",
+#     python_callable = mrt_nonfiscal_state,
+#     trigger_rule='all_success',
+#     dag = dag
+# )
 
 ##QC Steps
 qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    op_kwargs= {"qc_sas_logs": 'False'},
-    #trigger_rule='all_success',
+    op_kwargs= {"qc_run": 'False'},
     dag=dag
 )
 
@@ -241,21 +242,21 @@ qc_sas_logs = PythonSensor(
 # Generate Nonfiscal state from CCD Data with SAS
 qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
-    python_callable=qc_sas_output,
-    op_kwargs= {"qc_sas_output": 'False'},
-   # trigger_rule='all_success',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": 'False'},
     dag=dag
 )
 
-qc_database = PythonSensor(
-    task_id = "qc_database",
-    python_callable = qc_database_linking,
-    op_kwargs= {"qc_database": 'False'},
-    trigger_rule='all_success',
-    dag = dag
-)
+# qc_database = PythonSensor(
+#     task_id = "qc_database",
+#     python_callable = qc_database_linking,
+#     op_kwargs= {"qc_database": 'False'},
+#     trigger_rule='all_success',
+#     dag = dag
+# )
 
 
 
-gen_nonfiscal >> qc_sas_logs >> qc_sas_output  >> load_mrt_nonfiscal_state >> qc_database
+gen_nonfiscal >> qc_sas_logs >> qc_sas_output
+# >> load_mrt_nonfiscal_state >> qc_database
 #download_links >> download_dat >> 
