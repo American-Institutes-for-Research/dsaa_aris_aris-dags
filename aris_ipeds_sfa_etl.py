@@ -22,6 +22,7 @@ default_args = {
     'start_date': datetime.now() - timedelta(minutes=20),
     'retries': 0,
     'retry_delay': timedelta(minutes=5),
+    
 }
 
 # Define Main DAG for CCD pipeline 
@@ -90,16 +91,45 @@ def sas_log_check():
                 main_flag = 1
         error = stderr.read().decode().strip()
         print(error)
-      
-        
-
     finally:
         if ssh_client:
             ssh_client.close() 
             return(main_flag)
 
+def sas_output_to_db_check():
+    error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
+    main_flag = 0
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py "SFA"'
+        print(command)
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        stdout.channel.recv_exit_status()
+        lines = stdout.readlines()
+        for line in lines:
+            print(line.strip())
+            if any(strings in line for strings in error_strings):
+                main_flag = 1
+        error = stderr.read().decode().strip()
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close()
+            return(main_flag)
+
 def execute():
     main_flag = sas_log_check()
+    if main_flag == 1: 
+        return(False)
+    else:
+        return(True)
+
+def execute_sas_to_db():
+    main_flag = sas_output_to_db_check()
     if main_flag == 1: 
         return(False)
     else:
@@ -112,6 +142,7 @@ gen_sfa = PythonOperator(
     python_callable=sas_sfa,
     dag=dag
 )
+
 gen_sfa_mrt = PythonOperator(
     task_id = 'load_mrt_sfa',
     python_callable=mrt_SFA,
@@ -122,8 +153,14 @@ sas_log_parser = ShortCircuitOperator(
         task_id="check_sas_scripts",
         python_callable=execute,
         dag = dag
-    )
+)
+
+sas_output_variable_database_linking_check = ShortCircuitOperator(
+    task_id = "check_sas_output_to_db",
+    python_callable = execute_sas_to_db,
+    dag = dag
+)
 
 # DAG Dependancy
 #gen_sfa >> gen_sfa_mrt
-gen_sfa >> sas_log_parser >> gen_sfa_mrt
+gen_sfa >> sas_log_parser >> sas_output_variable_database_linking_check >> gen_sfa_mrt

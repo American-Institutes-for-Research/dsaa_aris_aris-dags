@@ -4,9 +4,11 @@ import airflow
 import code_executer
 from airflow import DAG
 from airflow.operators.python import PythonOperator, PythonVirtualenvOperator
-from airflow.operators.python_operator import BranchPythonOperator
+from airflow.operators.python_operator import BranchPythonOperator, EmptyOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
+from airflow.sensors.python import PythonSensor
+
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
 
 # default args
@@ -19,7 +21,10 @@ default_args = {
     'start_date': datetime.now() - timedelta(minutes=20),
     'retries': 0,
     'retry_delay': timedelta(minutes=5),
+    'year': '2021'
 }
+
+
 
 # Define Main DAG for CCD pipeline 
 dag = DAG(dag_id='aris_ccd_nonfiscal_state_etl',
@@ -110,6 +115,80 @@ def mrt_nonfiscal_state():
         if ssh_client:
             ssh_client.close() 
 
+
+def qc_sas_logs(qc_sas_logs, **kwargs):
+    '''
+    Purpose: check output of sas log files.
+    '''
+    if(qc_sas_logs == "False"):
+        return(False)
+    else:
+        error_strings= ["Errors found"]
+        main_flag = 0
+        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+        ssh_client = None
+        print(ssh)
+        try:
+            ssh_client = ssh.get_conn()
+            ssh_client.load_system_host_keys()
+            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py' 
+            print(command)
+            stdin, stdout, stderr = ssh_client.exec_command(command)
+            stdout.channel.recv_exit_status()
+            lines = stdout.readlines()
+            for line in lines:
+                print(line.strip())
+                if any(strings in line for strings in error_strings):
+                    main_flag = 1
+            error = stderr.read().decode().strip()
+            print(error)
+        finally:
+            if ssh_client:
+                ssh_client.close() 
+                return(main_flag) 
+
+def qc_sas_output(**kwargs):
+    '''
+    Purpose: check output of sas output files
+    '''
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py year "nonfiscal"' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+
+def qc_database_linking(**kwargs):
+    '''
+    Purpose: check output of sas output files
+    '''
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py" year "nonfiscal"' 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+
+
+
 # Download CCD Links 
 download_links = PythonOperator(
     task_id='download_links',
@@ -138,4 +217,34 @@ load_mrt_nonfiscal_state = PythonOperator(
     dag = dag
 )
 
-download_links >> download_dat >> gen_nonfiscal >> load_mrt_nonfiscal_state
+##QC Steps
+qc_sas_logs = PythonSensor(
+    task_id='qc_sas_logs',
+    python_callable=qc_sas_logs,
+    provide_context = True,
+    op_kwargs= {"qc_sas_logs": 'False'},
+    dag=dag
+)
+
+
+# Generate Nonfiscal state from CCD Data with SAS
+qc_sas_output = PythonSensor(
+    task_id='qc_sas_output',
+    python_callable=qc_sas_output,
+    provide_context = True,
+    op_kwargs= {"qc_sas_output": 'False'},
+    dag=dag
+)
+
+qc_database = PythonSensor(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    provide_context = True,
+    op_kwargs= {"qc_database": 'False'},
+    dag = dag
+)
+
+
+
+gen_nonfiscal >> qc_sas_logs >> qc_sas_output  >> load_mrt_nonfiscal_state >> qc_database
+#download_links >> download_dat >>
