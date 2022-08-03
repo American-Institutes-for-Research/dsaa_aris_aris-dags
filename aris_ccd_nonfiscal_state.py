@@ -233,7 +233,8 @@ gen_nonfiscal = PythonOperator(
 qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": QC_Run},
+    op_kwargs= {"qc_run": "False"},
+    soft_fail = True,
     dag=dag
 )
 
