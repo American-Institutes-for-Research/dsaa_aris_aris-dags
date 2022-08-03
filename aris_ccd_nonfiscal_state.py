@@ -124,6 +124,7 @@ def qc_sas_logs(qc_run):
     print("qc_run" + qc_run)
     print(qc_run == "False")
     if(qc_run == "False"):
+        print("we are in here")
         return False
     else:
         error_strings= ["Errors found"]
