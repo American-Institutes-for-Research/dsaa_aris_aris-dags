@@ -121,7 +121,7 @@ def qc_sas_logs(qc_sas_logs):
     Purpose: check output of sas log files.
     '''
     if(qc_sas_logs== "False"):
-        return(False)
+        return(True)
     else:
         error_strings= ["Errors found"]
         main_flag = 0
@@ -147,61 +147,68 @@ def qc_sas_logs(qc_sas_logs):
                 ssh_client.close() 
                 return(main_flag) 
 
-def qc_sas_output(**kwargs):
+def qc_sas_output(qc_sas_output):
+    
     '''
     Purpose: check output of sas output files
     '''
-    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-    ssh_client = None
-    print(ssh)
-    try:
-        ssh_client = ssh.get_conn()
-        ssh_client.load_system_host_keys()
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py year "nonfiscal"' 
-        stdin, stdout, stderr = ssh_client.exec_command(command)
-        out = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
-        print(out)
-        print(error)
-    finally:
-        if ssh_client:
-            ssh_client.close() 
+    if(qc_sas_output== "False"):
+        return(False)
+    else:
+        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+        ssh_client = None
+        print(ssh)
+        try:
+            ssh_client = ssh.get_conn()
+            ssh_client.load_system_host_keys()
+            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py year "nonfiscal"' 
+            stdin, stdout, stderr = ssh_client.exec_command(command)
+            out = stdout.read().decode().strip()
+            error = stderr.read().decode().strip()
+            print(out)
+            print(error)
+        finally:
+            if ssh_client:
+                ssh_client.close() 
 
-def qc_database_linking(**kwargs):
+def qc_database_linking(qc_database):
     '''
     Purpose: check output of sas output files
     '''
-    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-    ssh_client = None
-    print(ssh)
-    try:
-        ssh_client = ssh.get_conn()
-        ssh_client.load_system_host_keys()
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py" year "nonfiscal"' 
-        stdin, stdout, stderr = ssh_client.exec_command(command)
-        out = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
-        print(out)
-        print(error)
-    finally:
-        if ssh_client:
-            ssh_client.close() 
+    if(qc_database == "False"):
+        return(False)
+    else:
+        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+        ssh_client = None
+        print(ssh)
+        try:
+            ssh_client = ssh.get_conn()
+            ssh_client.load_system_host_keys()
+            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py" year "nonfiscal"' 
+            stdin, stdout, stderr = ssh_client.exec_command(command)
+            out = stdout.read().decode().strip()
+            error = stderr.read().decode().strip()
+            print(out)
+            print(error)
+        finally:
+            if ssh_client:
+                ssh_client.close() 
 
 
 
 # Download CCD Links 
-download_links = PythonOperator(
-    task_id='download_links',
-    python_callable=links,
-    dag=dag
-)
+# download_links = PythonOperator(
+#     task_id='download_links',
+#     python_callable=links,
+#     dag=dag
+# )
 
-# Download CCD Data 
-download_dat = PythonOperator(
-    task_id='download_dat',
-    python_callable=dat,
-    dag=dag
-)
+# # Download CCD Data 
+# download_dat = PythonOperator(
+#     task_id='download_dat',
+#     python_callable=dat,
+#     dag=dag
+# )
 
 
 # Generate Nonfiscal state from CCD Data with SAS
@@ -221,7 +228,7 @@ load_mrt_nonfiscal_state = PythonOperator(
 qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
-    op_kwargs= {"qc_sas_logs": 'True'},
+    op_kwargs= {"qc_sas_logs": 'False'},
     dag=dag
 )
 
