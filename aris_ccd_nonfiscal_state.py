@@ -69,7 +69,7 @@ def nonfiscal():
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + ' && sas ccd_nonfiscal_state - RE2  -set cnfyr "2020" -set cnfv “1a" '
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + ' && sas ".\ccd_nonfiscal_state - RE2.sas”  -set cnfyr "2020" -set cnfv “1a" '
     connect_to_server(command)
 
 def mrt_nonfiscal_state():
