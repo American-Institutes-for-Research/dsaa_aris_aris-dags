@@ -147,29 +147,30 @@ def qc_sas_logs(qc_sas_logs):
                 ssh_client.close() 
                 return(main_flag) 
 
-def qc_sas_output(qc_sas_output):
-    
+def qc_sas_output(qc_sas_output): 
     '''
     Purpose: check output of sas output files
     '''
     if(qc_sas_output== "False"):
         return(False)
     else:
-        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-        ssh_client = None
-        print(ssh)
-        try:
-            ssh_client = ssh.get_conn()
-            ssh_client.load_system_host_keys()
-            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py year "nonfiscal"' 
-            stdin, stdout, stderr = ssh_client.exec_command(command)
-            out = stdout.read().decode().strip()
-            error = stderr.read().decode().strip()
-            print(out)
-            print(error)
-        finally:
-            if ssh_client:
-                ssh_client.close() 
+        return(False)
+    # else:
+    #     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    #     ssh_client = None
+    #     print(ssh)
+    #     try:
+    #         ssh_client = ssh.get_conn()
+    #         ssh_client.load_system_host_keys()
+    #         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py year "nonfiscal"' 
+    #         stdin, stdout, stderr = ssh_client.exec_command(command)
+    #         out = stdout.read().decode().strip()
+    #         error = stderr.read().decode().strip()
+    #         print(out)
+    #         print(error)
+    #     finally:
+    #         if ssh_client:
+    #             ssh_client.close() 
 
 def qc_database_linking(qc_database):
     '''
@@ -215,12 +216,14 @@ def qc_database_linking(qc_database):
 gen_nonfiscal = PythonOperator(
     task_id='gen_nonfiscal',
     python_callable=nonfiscal,
+    trigger_rule='all_success',
     dag=dag
 )
 
 load_mrt_nonfiscal_state = PythonOperator(
     task_id = "load_mrt_nonfiscal_state",
     python_callable = mrt_nonfiscal_state,
+    trigger_rule='all_success',
     dag = dag
 )
 
@@ -229,6 +232,7 @@ qc_sas_logs = PythonSensor(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
     op_kwargs= {"qc_sas_logs": 'False'},
+    trigger_rule='all_success',
     dag=dag
 )
 
@@ -238,6 +242,7 @@ qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
     python_callable=qc_sas_output,
     op_kwargs= {"qc_sas_output": 'False'},
+    trigger_rule='all_success',
     dag=dag
 )
 
@@ -245,6 +250,7 @@ qc_database = PythonSensor(
     task_id = "qc_database",
     python_callable = qc_database_linking,
     op_kwargs= {"qc_database": 'False'},
+    trigger_rule='all_success',
     dag = dag
 )
 
