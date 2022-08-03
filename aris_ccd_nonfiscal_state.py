@@ -230,7 +230,6 @@ qc_sas_logs = PythonSensor(
 qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
     python_callable=qc_sas_output,
-    provide_context = True,
     op_kwargs= {"qc_sas_output": 'False'},
     dag=dag
 )
@@ -238,7 +237,6 @@ qc_sas_output = PythonSensor(
 qc_database = PythonSensor(
     task_id = "qc_database",
     python_callable = qc_database_linking,
-    provide_context = True,
     op_kwargs= {"qc_database": 'False'},
     dag = dag
 )
