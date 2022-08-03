@@ -120,7 +120,8 @@ def qc_sas_logs(qc_sas_logs, **kwargs):
     '''
     Purpose: check output of sas log files.
     '''
-    if(kwargs['qc_sas_logs']== "False"):
+    print(kwargs['qc_sas_logs'])
+    if(qc_sas_logs== "False"):
         return(False)
     else:
         error_strings= ["Errors found"]
