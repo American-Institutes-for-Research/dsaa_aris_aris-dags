@@ -10,7 +10,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run = False
+QC_Run = 'False'
 
 # default args
 default_args = {
@@ -121,6 +121,7 @@ def qc_sas_logs(qc_run):
     '''
     Purpose: check output of sas log files.
     '''
+    print(qc_run)
     if(qc_run == "False"):
         return(False)
     else:
@@ -239,20 +240,20 @@ qc_sas_logs = PythonSensor(
 qc_sas_output = PythonSensor(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run},
+    op_kwargs= {"qc_run": 'False'},
     dag=dag
 )
 
-# qc_database = PythonSensor(
-#     task_id = "qc_database",
-#     python_callable = qc_database_linking,
-#     op_kwargs= {"qc_database": 'False'},
-#     trigger_rule='all_success',
-#     dag = dag
-# )
+qc_database = PythonSensor(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    op_kwargs= {"qc_database": 'False'},
+    trigger_rule='all_success',
+    dag = dag
+)
 
 
 
-gen_nonfiscal >> qc_sas_logs >> qc_sas_output 
+gen_nonfiscal >> qc_sas_logs >> qc_sas_output >> qc_database
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 #download_links >> download_dat >> 
