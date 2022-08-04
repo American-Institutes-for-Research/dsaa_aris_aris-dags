@@ -16,7 +16,6 @@ QC_Run: "True"
 sas_variables = {'Year' : "2020",
                 'Version':"1a" }
 #Year = "2020"
-QC_Run = "False"
 
 # default args
 default_args = {
