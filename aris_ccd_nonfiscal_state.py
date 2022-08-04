@@ -13,7 +13,8 @@ from airflow.sensors.python import PythonSensor
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
 QC_Run: "False"
 
-sas_variables = {'Year' : "2020"}
+sas_variables = {'Year' : "2020",
+                'Version':"1a" }
 #Year = "2020"
 QC_Run = "False"
 
@@ -68,7 +69,7 @@ def dat():
     command = 'cd ' +  SERVICE_GIT_DIR + ' && python ' +  'IO\\ccd_data_downloader.py'
     connect_to_server(command)
 
-def nonfiscal(year):
+def nonfiscal(year, version):
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
@@ -80,7 +81,8 @@ def nonfiscal(year):
         ssh_client = ssh.get_conn()
         ssh_client.load_system_host_keys()
         print(year)
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv 1a' 
+        print(version)
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version ' 
         print(command) 
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
@@ -174,7 +176,8 @@ gen_nonfiscal = PythonOperator(
     task_id='gen_nonfiscal',
     python_callable=nonfiscal,
     trigger_rule='all_success',
-    op_kwargs= {"year": sas_variables['Year']},
+    op_kwargs= {"year": sas_variables['Year'], 
+                "version": sas_variables['Version']},
     dag=dag
 )
 
