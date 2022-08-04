@@ -58,7 +58,7 @@ def links(Download_Data):
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
     '''
     if(Download_Data == "False"):
-        return False
+        return True
     command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
     connect_to_server(command)
 
