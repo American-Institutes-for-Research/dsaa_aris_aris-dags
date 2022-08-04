@@ -73,11 +73,7 @@ def nonfiscal(year, version):
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
-    
-    print(year)
-    print(version)
     command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
-    print(command) 
     connect_to_server(command)
 
 def mrt_nonfiscal_state():
@@ -103,7 +99,7 @@ def qc_sas_logs(qc_run):
         try:
             ssh_client = ssh.get_conn()
             ssh_client.load_system_host_keys()
-            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py' 
+            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
             print(command)
             stdin, stdout, stderr = ssh_client.exec_command(command)
             stdout.channel.recv_exit_status()
@@ -117,7 +113,10 @@ def qc_sas_logs(qc_run):
         finally:
             if ssh_client:
                 ssh_client.close() 
-                return(main_flag) 
+                if main_flag == 1:
+                    return(False)
+                else:
+                    return(True) 
 
 
 
@@ -126,7 +125,7 @@ def qc_sas_output(qc_run, year):
     Purpose: check output of sas output files
     '''
     print(year)
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py' + year + ' "nonfiscal"' 
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal' 
     if(qc_run == "False"):
         return False
     else:
@@ -175,16 +174,16 @@ gen_nonfiscal = PythonOperator(
 #     dag = dag
 # )
 
-##QC Steps
-# qc_sas_logs = ShortCircuitOperator(
-#     task_id='qc_sas_logs',
-#     python_callable=qc_sas_logs,
-#     op_kwargs= {"qc_run": QC_Run},
-#     dag=dag
-# )
+#QC Steps
+qc_sas_logs = ShortCircuitOperator(
+    task_id='qc_sas_logs',
+    python_callable=qc_sas_logs,
+    op_kwargs= {"qc_run": QC_Run},
+    dag=dag
+)
 
 
-# # Generate Nonfiscal state from CCD Data with SAS
+# Generate Nonfiscal state from CCD Data with SAS
 # qc_sas_output = ShortCircuitOperator(
 #     task_id='qc_sas_output',
 #     python_callable= qc_sas_output,
@@ -202,7 +201,7 @@ gen_nonfiscal = PythonOperator(
 
 
 #download_links >> download_dat >>
-gen_nonfiscal 
-#>> qc_sas_logs >> qc_sas_output
+gen_nonfiscal >> qc_sas_logs
+# >> qc_sas_output
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 
