@@ -11,7 +11,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-Year = 2020
+Year = "2020"
 QC_Run = "False"
 
 # default args
