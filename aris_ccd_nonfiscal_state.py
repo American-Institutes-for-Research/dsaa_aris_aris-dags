@@ -8,10 +8,10 @@ from airflow.operators.python import PythonOperator, PythonVirtualenvOperator, S
 from airflow.operators.python_operator import BranchPythonOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
-from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run = "True"
+QC_Run = "False"
+Download_Data = "False"
 
 sas_variables = {'Year' : "2020",
                 'Version':"1a" }
@@ -53,10 +53,12 @@ def connect_to_server(run_command):
         if ssh_client:
             ssh_client.close() 
 
-def links():
+def links(Download_Data):
     '''
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
     '''
+    if(Download_Data == "False"):
+        return False
     command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
     connect_to_server(command)
 
@@ -156,12 +158,13 @@ def qc_database_linking(qc_database):
         connect_to_server(command)
 
 
-# Download CCD Links 
-# download_links = PythonOperator(
-#     task_id='download_links',
-#     python_callable=links,
-#     dag=dag
-# )
+#Download CCD Links 
+download_links = ShortCircuitOperator(
+    task_id='download_links',
+    python_callable=links,
+    op_kwargs= {"Download_Data": Download_Data},
+    dag=dag   
+)
 
 # # Download CCD Data 
 download_data = PythonOperator(
@@ -178,7 +181,7 @@ download_dodea_data = PythonOperator(
 )
 
 download_edge_data = PythonOperator(
-    task_id='download_edfe_data',
+    task_id='download_edge_data',
     python_callable= ccd_edge_downloader,
     dag=dag
 )
@@ -211,13 +214,13 @@ qc_sas_logs = ShortCircuitOperator(
 
 
 #Generate Nonfiscal state from CCD Data with SAS
-# qc_sas_output = ShortCircuitOperator(
-#     task_id='qc_sas_output',
-#     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run,
-#                   "year": sas_variables['Year']},
-#     dag=dag
-# )
+qc_sas_output = ShortCircuitOperator(
+    task_id='qc_sas_output',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": QC_Run,
+                  "year": sas_variables['Year']},
+    dag=dag
+)
 
 # qc_database = ShortCircuitOperator(
 #     task_id = "qc_database",
@@ -228,8 +231,7 @@ qc_sas_logs = ShortCircuitOperator(
 # )
 
 
-#download_links >> 
-download_data >> download_dodea_data >> download_edge_data >> gen_nonfiscal >> qc_sas_logs
-# >> qc_sas_output
+download_links >> download_data >> download_dodea_data >> download_edge_data
+download_edge_data >> gen_nonfiscal >> qc_sas_logs >> qc_sas_output
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 
