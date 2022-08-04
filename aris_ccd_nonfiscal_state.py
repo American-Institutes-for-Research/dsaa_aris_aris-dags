@@ -70,9 +70,16 @@ def download_dat():
 
 def download_dodea_dat():
     '''
-    Purpose: execute ccd_data_downloader.py on command line to download CCD data 
+    Purpose: execute ccd_dodea_downloader.py on command line to download CCD data 
     '''
     command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_dodea_downloader.py' 
+    connect_to_server(command)
+
+def ccd_edge_downloader():
+    '''
+    Purpose: execute ccd_edge_downloader.py on command line to download CCD data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_edge_downloader.py' 
     connect_to_server(command)
 
 
@@ -165,8 +172,14 @@ download_data = PythonOperator(
 
 # # Download Dodea Data 
 download_dodea_data = PythonOperator(
-    task_id='download_data',
+    task_id='download_dodea_data',
     python_callable= download_dodea_dat,
+    dag=dag
+)
+
+download_edge_data = PythonOperator(
+    task_id='download_edfe_data',
+    python_callable= ccd_edge_downloader,
     dag=dag
 )
 
@@ -216,8 +229,7 @@ qc_sas_logs = ShortCircuitOperator(
 
 
 #download_links >> 
-download_data >> download_dodea_data 
-#gen_nonfiscal >> qc_sas_logs
+download_data >> download_dodea_data >> download_edge_data >> gen_nonfiscal >> qc_sas_logs
 # >> qc_sas_output
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 
