@@ -58,7 +58,7 @@ def links(Download_Data):
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
     '''
     if(Download_Data == "False"):
-        return True
+        return False
     command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
     connect_to_server(command)
 
@@ -163,6 +163,7 @@ download_links = ShortCircuitOperator(
     task_id='download_links',
     python_callable=links,
     op_kwargs= {"Download_Data": Download_Data},
+    trigger_rule='none_failed',
     dag=dag   
 )
 
@@ -170,6 +171,7 @@ download_links = ShortCircuitOperator(
 download_data = PythonOperator(
     task_id='download_data',
     python_callable=download_dat,
+    trigger_rule='none_failed',
     dag=dag
 )
 
@@ -177,12 +179,14 @@ download_data = PythonOperator(
 download_dodea_data = PythonOperator(
     task_id='download_dodea_data',
     python_callable= download_dodea_dat,
+    trigger_rule='none_failed',
     dag=dag
 )
 
 download_edge_data = PythonOperator(
     task_id='download_edge_data',
     python_callable= ccd_edge_downloader,
+    trigger_rule='none_failed',
     dag=dag
 )
 
@@ -191,7 +195,7 @@ download_edge_data = PythonOperator(
 gen_nonfiscal = PythonOperator(
     task_id='gen_nonfiscal',
     python_callable=nonfiscal,
-    trigger_rule='all_success',
+    trigger_rule='none_failed',
     op_kwargs= {"year": sas_variables['Year'], 
                 "version": sas_variables['Version']},
     dag=dag
@@ -200,7 +204,7 @@ gen_nonfiscal = PythonOperator(
 # load_mrt_nonfiscal_state = PythonOperator(
 #     task_id = "load_mrt_nonfiscal_state",
 #     python_callable = mrt_nonfiscal_state,
-#     trigger_rule='all_success',
+#     trigger_rule='none_failed',
 #     dag = dag
 # )
 
@@ -226,7 +230,7 @@ qc_sas_output = ShortCircuitOperator(
 #     task_id = "qc_database",
 #     python_callable = qc_database_linking,
 #     op_kwargs= {"qc_database": QC_Run},
-#     trigger_rule='all_success',
+#     trigger_rule='none_failed',
 #     dag = dag
 # )
 
