@@ -11,7 +11,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.sensors.python import PythonSensor
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run: "True"
+QC_Run = "True"
 
 sas_variables = {'Year' : "2020",
                 'Version':"1a" }
@@ -186,7 +186,8 @@ qc_sas_logs = ShortCircuitOperator(
 # qc_sas_output = ShortCircuitOperator(
 #     task_id='qc_sas_output',
 #     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run},
+#     op_kwargs= {"qc_run": QC_Run,
+#                   "year": sas_variables['Year']},
 #     dag=dag
 # )
 
