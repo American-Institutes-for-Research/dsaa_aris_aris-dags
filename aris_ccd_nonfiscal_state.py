@@ -82,7 +82,7 @@ def nonfiscal(year, version):
         ssh_client.load_system_host_keys()
         print(year)
         print(version)
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version ' 
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
         print(command) 
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
