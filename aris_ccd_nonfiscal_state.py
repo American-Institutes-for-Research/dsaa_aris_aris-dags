@@ -73,25 +73,12 @@ def nonfiscal(year, version):
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
-     #print(run_command)
-    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-    ssh_client = None
-    print(ssh)
-    try:
-        ssh_client = ssh.get_conn()
-        ssh_client.load_system_host_keys()
-        print(year)
-        print(version)
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
-        print(command) 
-        stdin, stdout, stderr = ssh_client.exec_command(command)
-        out = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
-        print(out)
-        print(error)
-    finally:
-        if ssh_client:
-            ssh_client.close() 
+    
+    print(year)
+    print(version)
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
+    print(command) 
+    connect_to_server(command)
 
 def mrt_nonfiscal_state():
     '''
