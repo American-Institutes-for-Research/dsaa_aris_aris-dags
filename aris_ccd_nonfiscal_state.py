@@ -57,16 +57,25 @@ def links():
     '''
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + ' && python ' + '\\IO\\ccd_data_list_downloader.py' 
+    command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
     connect_to_server(command)
 
 
-def dat():
+def download_dat():
     '''
     Purpose: execute ccd_data_downloader.py on command line to download CCD data 
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + ' && python ' +  'IO\\ccd_data_downloader.py'
+    command = 'cd ' +  SERVICE_GIT_DIR +   '\\IO' ' && python ccd_data_downloader.py'
     connect_to_server(command)
+
+def download_dodea_dat():
+    '''
+    Purpose: execute ccd_data_downloader.py on command line to download CCD data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_dodea_downloader.py' 
+    connect_to_server(command)
+
+
 
 def nonfiscal(year, version):
     '''
@@ -90,7 +99,7 @@ def qc_sas_logs(qc_run):
     if(qc_run == "False"):
         return False
     else:
-        error_strings= ["Errors found"]
+        error_strings= ["Critical Errors"]
         main_flag = 0
         ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
         ssh_client = None
@@ -123,8 +132,7 @@ def qc_sas_output(qc_run, year):
     '''
     Purpose: check output of sas output files
     '''
-    print(year)
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal' 
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + 'nonfiscal Output-CCD-ST-2020.xlsx' 
     if(qc_run == "False"):
         return False
     else:
@@ -149,11 +157,18 @@ def qc_database_linking(qc_database):
 # )
 
 # # Download CCD Data 
-# download_dat = PythonOperator(
-#     task_id='download_dat',
-#     python_callable=dat,
-#     dag=dag
-# )
+download_data = PythonOperator(
+    task_id='download_data',
+    python_callable=download_dat,
+    dag=dag
+)
+
+# # Download Dodea Data 
+download_dodea_data = PythonOperator(
+    task_id='download_data',
+    python_callable= download_dodea_dat,
+    dag=dag
+)
 
 
 # Generate Nonfiscal state from CCD Data with SAS
@@ -182,7 +197,7 @@ qc_sas_logs = ShortCircuitOperator(
 )
 
 
-# Generate Nonfiscal state from CCD Data with SAS
+#Generate Nonfiscal state from CCD Data with SAS
 # qc_sas_output = ShortCircuitOperator(
 #     task_id='qc_sas_output',
 #     python_callable= qc_sas_output,
@@ -200,8 +215,9 @@ qc_sas_logs = ShortCircuitOperator(
 # )
 
 
-#download_links >> download_dat >>
-gen_nonfiscal >> qc_sas_logs
+#download_links >> 
+download_data >> download_dodea_data 
+#gen_nonfiscal >> qc_sas_logs
 # >> qc_sas_output
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 
