@@ -54,6 +54,37 @@ def connect_to_server(run_command):
         if ssh_client:
             ssh_client.close() 
 
+def connect_to_server_qc(run_command,error_strings_list):
+    '''
+    Purpose: check output of sas log files.
+    '''
+    error_strings= error_strings_list
+    main_flag = 0
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = run_command
+        print(command)
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        stdout.channel.recv_exit_status()
+        lines = stdout.readlines()
+        for line in lines:
+            print(line.strip())
+            if any(strings in line for strings in error_strings):
+                main_flag = 1
+        error = stderr.read().decode().strip()
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+            if main_flag == 1:
+                return(False)
+            else:
+                return(True) 
+    
 def links(Download_Data):
     '''
     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
@@ -119,32 +150,10 @@ def qc_sas_logs(qc_run):
     if(qc_run == "False"):
         return False
     else:
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
         error_strings= ["Critical Errors"]
-        main_flag = 0
-        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-        ssh_client = None
-        print(ssh)
-        try:
-            ssh_client = ssh.get_conn()
-            ssh_client.load_system_host_keys()
-            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
-            print(command)
-            stdin, stdout, stderr = ssh_client.exec_command(command)
-            stdout.channel.recv_exit_status()
-            lines = stdout.readlines()
-            for line in lines:
-                print(line.strip())
-                if any(strings in line for strings in error_strings):
-                    main_flag = 1
-            error = stderr.read().decode().strip()
-            print(error)
-        finally:
-            if ssh_client:
-                ssh_client.close() 
-                if main_flag == 1:
-                    return(False)
-                else:
-                    return(True) 
+        results = connect_to_server_qc(command, error_strings)
+        return (results)
 
 
 
@@ -162,38 +171,16 @@ def qc_sas_output(qc_run, year):
         return True
 
 def qc_database_linking(qc_run, year):
-
+    ##This is the file to run through the script
     file = 'Output-CCD-ST-' + year + '.xlsx'
 
     if(qc_run == "False"):
         return False
     else:
         error_strings= ["Please resolve these duplicated values issue", " Discrepancy found between Sas output file and database value"]
-        main_flag = 0
-        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-        ssh_client = None
-        print(ssh)
-        try:
-            ssh_client = ssh.get_conn()
-            ssh_client.load_system_host_keys()
-            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
-            print(command)
-            stdin, stdout, stderr = ssh_client.exec_command(command)
-            stdout.channel.recv_exit_status()
-            lines = stdout.readlines()
-            for line in lines:
-                print(line.strip())
-                if any(strings in line for strings in error_strings):
-                    main_flag = 1
-            error = stderr.read().decode().strip()
-            print(error)
-        finally:
-            if ssh_client:
-                ssh_client.close() 
-                if main_flag == 1:
-                    return(False)
-                else:
-                    return(True)
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
+        results = connect_to_server_qc(command, error_strings)
+        return (results)
    
 
 
@@ -244,12 +231,12 @@ write_to_db = PythonOperator(
     dag=dag
 )
 
-# load_mrt_nonfiscal_state = PythonOperator(
-#     task_id = "load_mrt_nonfiscal_state",
-#     python_callable = mrt_nonfiscal_state,
-#     trigger_rule='all_success',
-#     dag = dag
-# )
+load_mrt_nonfiscal_state = PythonOperator(
+    task_id = "load_mrt_nonfiscal_state",
+    python_callable = mrt_nonfiscal_state,
+    trigger_rule='all_success',
+    dag = dag
+)
 
 #QC Steps
 qc_sas_logs = ShortCircuitOperator(
@@ -281,8 +268,8 @@ qc_database = ShortCircuitOperator(
 )
 
 
-download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
-download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks") >> qc_sas_logs >> qc_sas_output
-qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Checks")>> qc_database
-#qc_database >> load_mrt_nonfiscal_state 
+Label("Downloading Links") >> download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
+download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Check:Database")>> qc_database
+qc_database >> Label("Create Tales") >> load_mrt_nonfiscal_state 
 
