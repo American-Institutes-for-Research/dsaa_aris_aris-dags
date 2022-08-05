@@ -117,19 +117,11 @@ def ccd_edge_downloader():
     connect_to_server(command)
 
 
-
 def nonfiscal(year, version):
     '''
     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
     '''
     command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
-    connect_to_server(command)
-
-def mrt_nonfiscal_state():
-    '''
-    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
-    '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_state.py'
     connect_to_server(command)
 
 
@@ -181,8 +173,16 @@ def qc_database_linking(qc_run, year):
         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
         results = connect_to_server_qc(command, error_strings)
         return (results)
-   
 
+def mrt_nonfiscal_state():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_state.py'
+    error_strings = ['TypeError']
+    results = connect_to_server_qc(command, error_strings)
+    return (results)
+   
 
 #Download CCD Links 
 download_links = ShortCircuitOperator(
@@ -205,7 +205,7 @@ download_dodea_data = PythonOperator(
     python_callable= download_dodea_dat,
     dag=dag
 )
-
+##Download Edge Data
 download_edge_data = PythonOperator(
     task_id='download_edge_data',
     python_callable= ccd_edge_downloader,
@@ -223,22 +223,8 @@ gen_nonfiscal = PythonOperator(
     dag=dag
 )
 
-write_to_db = PythonOperator(
-    task_id='write_to_db',
-    python_callable=write_to_db,
-    op_kwargs= {"year": sas_variables['Year']},
-    trigger_rule = "none_failed", 
-    dag=dag
-)
-
-load_mrt_nonfiscal_state = PythonOperator(
-    task_id = "load_mrt_nonfiscal_state",
-    python_callable = mrt_nonfiscal_state,
-    trigger_rule='all_success',
-    dag = dag
-)
-
 #QC Steps
+    #QC Sas Logs
 qc_sas_logs = ShortCircuitOperator(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
@@ -246,9 +232,7 @@ qc_sas_logs = ShortCircuitOperator(
     trigger_rule='all_success',
     dag=dag
 )
-
-
-#Generate Nonfiscal state from CCD Data with SAS
+    #QC Sas Output
 qc_sas_output = ShortCircuitOperator(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
@@ -258,6 +242,7 @@ qc_sas_output = ShortCircuitOperator(
     dag=dag
 )
 
+#QC Data written to DB
 qc_database = ShortCircuitOperator(
     task_id = "qc_database",
     python_callable = qc_database_linking,
@@ -266,6 +251,26 @@ qc_database = ShortCircuitOperator(
     trigger_rule='all_success',
     dag = dag
 )
+
+
+##Write Data to DB
+write_to_db = PythonOperator(
+    task_id='write_to_db',
+    python_callable=write_to_db,
+    op_kwargs= {"year": sas_variables['Year']},
+    trigger_rule = "none_failed", 
+    dag=dag
+)
+
+##Load Tables into DB
+load_mrt_nonfiscal_state = PythonOperator(
+    task_id = "load_mrt_nonfiscal_state",
+    python_callable = mrt_nonfiscal_state,
+    trigger_rule='all_success',
+    dag = dag
+)
+
+
 
 
 Label("Downloading Links") >> download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
