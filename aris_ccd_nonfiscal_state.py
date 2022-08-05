@@ -159,8 +159,10 @@ def qc_sas_output(qc_run, year):
         return False
     else:
         connect_to_server(command)
+        return True
 
 def qc_database_linking(qc_run, year):
+
     file = 'Output-CCD-ST-' + year + '.xlsx'
 
     if(qc_run == "False"):
@@ -238,6 +240,7 @@ write_to_db = PythonOperator(
     task_id='write_to_db',
     python_callable=write_to_db,
     op_kwargs= {"year": sas_variables['Year']},
+    trigger_rule = "none_failed", 
     dag=dag
 )
 
@@ -253,6 +256,7 @@ qc_sas_logs = ShortCircuitOperator(
     task_id='qc_sas_logs',
     python_callable=qc_sas_logs,
     op_kwargs= {"qc_run": QC_Run},
+    trigger_rule='all_success',
     dag=dag
 )
 
@@ -263,6 +267,7 @@ qc_sas_output = ShortCircuitOperator(
     python_callable= qc_sas_output,
     op_kwargs= {"qc_run": QC_Run,
                   "year": sas_variables['Year']},
+    trigger_rule='all_success',
     dag=dag
 )
 
