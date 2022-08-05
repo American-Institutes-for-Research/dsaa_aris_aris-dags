@@ -11,7 +11,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.edgemodifier import Label
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run = "False"
+QC_Run = "True"
 Download_Data = "False"
 
 sas_variables = {'Year' : "2021",
@@ -143,7 +143,8 @@ def qc_sas_output(qc_run, year):
     Purpose: check output of sas output files
     '''
     file = 'Output-CCD-ST-' + year + '.xlsx'
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal ' +file
+    print(file)
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal ' + file
     if(qc_run == "False"):
         return False
     else:
@@ -233,7 +234,7 @@ qc_sas_output = ShortCircuitOperator(
 # )
 
 
-download_links >> download_data >> download_dodea_data >> download_edge_data
-download_edge_data >> gen_nonfiscal >>  Label("QC Checks") >> qc_sas_logs >> qc_sas_output
+download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
+download_edge_data >> Label("Running Sas Script") >>gen_nonfiscal >>  Label("QC Checks") >> qc_sas_logs >> qc_sas_output
 #gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
 
