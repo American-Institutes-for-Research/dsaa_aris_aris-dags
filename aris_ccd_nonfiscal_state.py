@@ -102,6 +102,16 @@ def mrt_nonfiscal_state():
     connect_to_server(command)
 
 
+def write_to_db(year): 
+    '''
+    Purpose: Write Output file to the db
+    '''
+    file = 'Output-CCD-ST-' + year + '.xlsx'
+    print(file)
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_to_db.py ' + year + ' nonfiscal ' + file
+    connect_to_server(command)    
+
+
 def qc_sas_logs(qc_run):
     '''
     Purpose: check output of sas log files.
@@ -150,15 +160,39 @@ def qc_sas_output(qc_run, year):
     else:
         connect_to_server(command)
 
-def qc_database_linking(qc_database):
-    '''
-    Purpose: check output of sas output files
-    '''
-    if(qc_database == "False"):
+def qc_database_linking(qc_run, year):
+    file = 'Output-CCD-ST-' + year + '.xlsx'
+
+    if(qc_run == "False"):
         return False
     else:
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py" year "nonfiscal"' 
-        connect_to_server(command)
+        error_strings= ["Please resolve these duplicated values issue", " Discrepancy found between Sas output file and database value"]
+        main_flag = 0
+        ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+        ssh_client = None
+        print(ssh)
+        try:
+            ssh_client = ssh.get_conn()
+            ssh_client.load_system_host_keys()
+            command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
+            print(command)
+            stdin, stdout, stderr = ssh_client.exec_command(command)
+            stdout.channel.recv_exit_status()
+            lines = stdout.readlines()
+            for line in lines:
+                print(line.strip())
+                if any(strings in line for strings in error_strings):
+                    main_flag = 1
+            error = stderr.read().decode().strip()
+            print(error)
+        finally:
+            if ssh_client:
+                ssh_client.close() 
+                if main_flag == 1:
+                    return(False)
+                else:
+                    return(True)
+   
 
 
 #Download CCD Links 
@@ -200,6 +234,13 @@ gen_nonfiscal = PythonOperator(
     dag=dag
 )
 
+write_to_db = PythonOperator(
+    task_id='write_to_db',
+    python_callable=write_to_db,
+    op_kwargs= {"year": sas_variables['Year']},
+    dag=dag
+)
+
 # load_mrt_nonfiscal_state = PythonOperator(
 #     task_id = "load_mrt_nonfiscal_state",
 #     python_callable = mrt_nonfiscal_state,
@@ -225,16 +266,18 @@ qc_sas_output = ShortCircuitOperator(
     dag=dag
 )
 
-# qc_database = ShortCircuitOperator(
-#     task_id = "qc_database",
-#     python_callable = qc_database_linking,
-#     op_kwargs= {"qc_database": QC_Run},
-#     trigger_rule='all_success',
-#     dag = dag
-# )
+qc_database = ShortCircuitOperator(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    op_kwargs= {"qc_run": QC_Run, 
+                "year": sas_variables['Year']},
+    trigger_rule='all_success',
+    dag = dag
+)
 
 
 download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
-download_edge_data >> Label("Running Sas Script") >>gen_nonfiscal >>  Label("QC Checks") >> qc_sas_logs >> qc_sas_output
-#gen_nonfiscal >> load_mrt_nonfiscal_state >> qc_database
+download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks") >> qc_sas_logs >> qc_sas_output
+qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Checks")>> qc_database
+#qc_database >> load_mrt_nonfiscal_state 
 
