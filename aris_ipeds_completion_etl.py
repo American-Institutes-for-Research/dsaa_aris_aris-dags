@@ -52,14 +52,14 @@ def connect_to_server(run_command):
             ssh_client.close() 
 
 def compile_sas_command(sas_arguments):
-    
-    for sas_key in sas_arguments:
-        command_str = "sas" + sas_key 
-        for key, value in sas_key:
-            argument_str = " -set " + key + " " + value
-            print(key , "->", value)
-            command_str = command_str + argument_str
-    print(command_str)
+    print(sas_arguments)
+    # for sas_key in sas_arguments:
+    #     command_str = "sas" + sas_key 
+    #     for key, value in sas_key:
+    #         argument_str = " -set " + key + " " + value
+    #         print(key , "->", value)
+    #         command_str = command_str + argument_str
+    # print(command_str)
 
 
 
