@@ -325,5 +325,4 @@ qc_database = ShortCircuitOperator(
 
 #run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 #qc_sas_output >>  Label("Write to DB")  
-##write_to_db  >> Label("QC Check:Database")
-##qc_database 
+write_to_db  >> Label("QC Check:Database") >> qc_database 
