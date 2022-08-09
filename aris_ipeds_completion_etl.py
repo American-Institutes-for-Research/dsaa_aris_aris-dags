@@ -12,6 +12,7 @@ from airflow.utils.edgemodifier import Label
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS server's C drive
 QC_Run = "True"
+digest_year = "d22"
 
 
 # default args
@@ -23,7 +24,7 @@ default_args = {
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
     'retries': 0,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=15),
 }
 
 sas_script_arguments = { 
@@ -196,8 +197,6 @@ def compile_sas_command(sas_arguments, sas_key):
         command_str = command_str + argument_str
     return command_str
 
-
-
 def sas_completion(sas_arguments):
     '''
     Purpose: execute all Survey Completion Sas Scripts 
@@ -230,7 +229,16 @@ def qc_sas_output(qc_run):
         return False
     else:
         connect_to_server(command)
-        return True  
+        return True 
+
+
+def write_to_db(digest_year): 
+    '''
+    Purpose: Write Output file to the db
+    '''
+    
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_to_db.py ' + digest_year + ' Survey_Completion'
+    connect_to_server(command)     
 
 def mrt_completion():
     '''
@@ -260,13 +268,13 @@ def mrt_completion():
 #     dag=dag
 # )
 
-qc_sas_logs = ShortCircuitOperator(
-    task_id='qc_sas_logs',
-    python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": QC_Run},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_logs = ShortCircuitOperator(
+#     task_id='qc_sas_logs',
+#     python_callable=qc_sas_logs,
+#     op_kwargs= {"qc_run": QC_Run},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
 qc_sas_output = ShortCircuitOperator(
     task_id='qc_sas_output',
@@ -275,6 +283,15 @@ qc_sas_output = ShortCircuitOperator(
     trigger_rule='all_success',
     dag=dag
 )
+
+##Write Data to DB
+# write_to_db = PythonOperator(
+#     task_id='write_to_db',
+#     python_callable=write_to_db,
+#     op_kwargs= {"digest_year": digest_year},
+#     trigger_rule = "none_failed", 
+#     dag=dag
+# )
 
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -285,5 +302,6 @@ qc_sas_output = ShortCircuitOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 
-#run_sas_scripts  >>  Label("QC Checks:Sas Output") >> 
-qc_sas_logs >> qc_sas_output
+#run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+#qc_sas_output >>  Label("Write to DB") >> 
+write_to_db  >> Label("QC Check:Database")
