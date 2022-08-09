@@ -22,16 +22,52 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-sas_script_arguments = { "t318-30-IPEDS-d21.sas":
+sas_script_arguments = { 
+                    "t318-30-IPEDS-d21.sas":
                         {"dataYear": "d22",
                         "year": "2020",
                         "cy_year": "2021" },
+
+                    ##Update All These to new year
                     "t318-40-d21-MR.sas":
-                        {"digest_year": "d21",
-                        "schyear2": "2019-20",
-                        "datayear2": "2020",
-                        "schyear1": "2018-19",
-                        "datayear1": "2019" }
+                        {"digest_year": "d22",
+                        "schyear2": "2020-21",
+                        "datayear2": "2021",
+                        "schyear1": "2019-20",
+                        "datayear1": "2020" },
+                    "t318-40-d21-MR.sas": 
+                        {"digest_year": "d22",
+                        "schyear2": "2020-21",
+                        "datayear2": "2021",
+                        "schyear1": "2019-20",
+                        "datayear1": "2020"
+                        },
+                    "t318-50-60-MR.sas":
+                    {"digest_year": "d22",
+                    "year": "2020-21",
+                    "shortyear": "2021"
+                    },
+                    "t319-10-20-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "cy":"2020-21",
+                    "cy_long": "2021",
+                    "py": "2019-20",
+                    "py_long": "2019"
+                    },
+                    "t319-30-40-318-20-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "cy":"2020-21",
+                    "cy_long": "2021",
+                    "py": "2019-20",
+                    "py_long": "2019"   
+                    },
+                    "t320-10-t321-10-IPEDS-C-D21-MR.sas":
+                    {"digest_year": "d22",
+                    "year":"20-21",
+                    "cy_long": "2021",
+                    "pyyear": "19-20",
+                    "py_long": "2019" 
+                    }
 }
 
 # Define Main DAG for CCD pipeline 
