@@ -47,7 +47,6 @@ sas_script_arguments = {
                     "year": "2020-21",
                     "shortyear": "2021"
                     },
-                    ##Need to Fix
                     "t319-10-20-d21-MR.sas":
                     {"digest_year": "d22",
                     "cy":"2020-21",
@@ -82,8 +81,39 @@ sas_script_arguments = {
                     "cy_long": "2021",
                     "pyyear": "2019-20",
                     "py_long": "2020" 
-
+                    },
+                    ###Has not been tested yet
+                    "t322-10-20-30-40-50-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "schyear2": "2020-21",
+                    "datayear2": "2021",
+                    "schyear1": "2019-20",
+                    "datayear1": "2020"
+                    },
+                    "t323-10-20-30-40-50-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "schyear2": "2020-21",
+                    "datayear2": "2021",
+                    "schyear1": "2019-20",
+                    "datayear1": "2020"
+                    },
+                    "t324-10-20-25-30-35-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "schyear2": "2020-21",
+                    "datayear2": "2021",
+                    "schyear1": "2019-20",
+                    "datayear1": "2020"
+                    },
+                    ##Need to update
+                    "t324-40-50-MRT.sas" :
+                    {"digest_year": "d21",
+                    "cy":"2019_20",
+                    "cy_long": "2020",
+                    "py": "2018-19",
+                    "py_long": "2019" 
                     }
+                    ##Dont need to update
+
 
 }
 
