@@ -311,6 +311,6 @@ qc_database = ShortCircuitOperator(
 #gen_completion >> gen_completion_mrt
 
 run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-qc_sas_output >>  Label("Write to DB")  
+qc_sas_output >>  Label("Write to DB")  >> write_to_db
 write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
 ##load_completion_mrt
