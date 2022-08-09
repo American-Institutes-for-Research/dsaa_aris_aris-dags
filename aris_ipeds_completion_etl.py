@@ -53,13 +53,17 @@ def connect_to_server(run_command):
 
 def compile_sas_command(sas_arguments):
     print(sas_arguments)
+
+    for sas_key in sas_arguments:
+        print(sas_key)
+        command_str = "sas" + sas_key
     # for sas_key in sas_arguments:
     #     command_str = "sas" + sas_key 
     #     for key, value in sas_key:
     #         argument_str = " -set " + key + " " + value
     #         print(key , "->", value)
     #         command_str = command_str + argument_str
-    # print(command_str)
+    print(command_str)
 
 
 
