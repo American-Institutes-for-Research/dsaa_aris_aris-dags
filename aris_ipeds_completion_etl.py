@@ -52,21 +52,21 @@ sas_script_arguments = {
                     "cy":"2020-21",
                     "cy_long": "2021",
                     "py": "2019-20",
-                    "py_long": "2019"
+                    "py_long": "2020"
                     },
                     "t319-30-40-318-20-d21-MR.sas":
                     {"digest_year": "d22",
                     "cy":"2020-21",
                     "cy_long": "2021",
                     "py": "2019-20",
-                    "py_long": "2019"   
+                    "py_long": "2020"   
                     },
                     "t320-10-t321-10-IPEDS-C-D21-MR.sas":
                     {"digest_year": "d22",
                     "year":"20-21",
                     "cy_long": "2021",
                     "pyyear": "19-20",
-                    "py_long": "2019" 
+                    "py_long": "2020" 
                     }
 }
 
