@@ -215,7 +215,7 @@ def qc_sas_logs(qc_run):
     if(qc_run == "False"):
         return False
     else:
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' python sas_parser.py d21 "Completion Survey SAS code" '
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + '&& python sas_parser.py d21 "Completion Survey SAS code" '
         error_strings= ["Critical Errors"]
         results = connect_to_server_qc(command, error_strings)
         return (results)
