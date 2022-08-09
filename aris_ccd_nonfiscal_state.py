@@ -11,7 +11,7 @@ from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.edgemodifier import Label
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
-QC_Run = "True"
+QC_Run = "False"
 Download_Data = "False"
 
 sas_variables = {'Year' : "2021",
