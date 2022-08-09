@@ -303,5 +303,5 @@ qc_sas_output = ShortCircuitOperator(
 #gen_completion >> gen_completion_mrt
 
 #run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-#qc_sas_output >>  Label("Write to DB") >> 
-write_to_db  >> Label("QC Check:Database")
+qc_sas_output >>  Label("Write to DB")  
+#write_to_db  >> Label("QC Check:Database")
