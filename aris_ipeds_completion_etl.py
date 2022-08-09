@@ -68,8 +68,8 @@ def connect_to_server(run_command):
 
 def compile_sas_command(sas_arguments):
     for sas_key in sas_arguments:
-        for key in sas_key:
-            print(key , "->", sas_arguments[sas_key][key])
+        for key, value in sas_key:
+            print(key , "->", value)
 
 
 def sas_completion():
@@ -116,6 +116,7 @@ def mrt_completion():
 compile_sas = PythonOperator(
     task_id='compile_sas_commands',
     python_callable=compile_sas_command,
+    op_kwargs= sas_arguments,
     dag=dag
 )
 
