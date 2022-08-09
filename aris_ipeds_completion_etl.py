@@ -106,11 +106,11 @@ sas_script_arguments = {
                     },
                     ##Need to update
                     "t324-40-50-MRT.sas" :
-                    {"digest_year": "d21",
-                    "cy":"2019_20",
-                    "cy_long": "2020",
-                    "py": "2018_19",
-                    "py_long": "2019" 
+                    {"digest_year": "d22",
+                    "cy":"2020_21",
+                    "cy_long": "2021",
+                    "py": "2019_20",
+                    "py_long": "2020" 
                     },
                     ##Dont need to update
                     "t325-sup-d21-MR.sas" :
