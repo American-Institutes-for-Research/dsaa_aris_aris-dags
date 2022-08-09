@@ -255,45 +255,32 @@ def mrt_completion():
     '''
     Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
     '''
-    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-    ssh_client = None
-    print(ssh)
-    try:
-        ssh_client = ssh.get_conn()
-        ssh_client.load_system_host_keys()
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_completion.py' 
-        stdin, stdout, stderr = ssh_client.exec_command(command)
-        out = stdout.read().decode().strip()
-        error = stderr.read().decode().strip()
-        print(out)
-        print(error)
-    finally:
-        if ssh_client:
-            ssh_client.close()            
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_completion.py' 
+    connect_to_server(command)             
 
 # Generate Nonfiscal state from CCD Data with SAS
-# run_sas_scripts = PythonOperator(
-#     task_id='run_completion_sas_scripts',
-#     python_callable=sas_completion,
-#     op_kwargs= {"sas_arguments": sas_script_arguments},
-#     dag=dag
-# )
+run_sas_scripts = PythonOperator(
+    task_id='run_completion_sas_scripts',
+    python_callable=sas_completion,
+    op_kwargs= {"sas_arguments": sas_script_arguments},
+    dag=dag
+)
 
-# qc_sas_logs = ShortCircuitOperator(
-#     task_id='qc_sas_logs',
-#     python_callable=qc_sas_logs,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+qc_sas_logs = ShortCircuitOperator(
+    task_id='qc_sas_logs',
+    python_callable=qc_sas_logs,
+    op_kwargs= {"qc_run": QC_Run},
+    trigger_rule='all_success',
+    dag=dag
+)
 
-# qc_sas_output = ShortCircuitOperator(
-#     task_id='qc_sas_output',
-#     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+qc_sas_output = ShortCircuitOperator(
+    task_id='qc_sas_output',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": QC_Run},
+    trigger_rule='all_success',
+    dag=dag
+)
 
 ##Write Data to DB
 write_to_db = PythonOperator(
@@ -314,7 +301,7 @@ qc_database = ShortCircuitOperator(
     dag = dag
 )
 
-# gen_completion_mrt = PythonOperator(
+# load_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
 #     python_callable=mrt_completion,
 #     dag=dag
@@ -323,6 +310,7 @@ qc_database = ShortCircuitOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 
-#run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-#qc_sas_output >>  Label("Write to DB")  
-write_to_db  >> Label("QC Check:Database") >> qc_database 
+run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+qc_sas_output >>  Label("Write to DB")  
+write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
+##load_completion_mrt
