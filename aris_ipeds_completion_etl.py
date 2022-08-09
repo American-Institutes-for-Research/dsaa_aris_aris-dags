@@ -21,25 +21,10 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-sas_arguments = { "t318-30-IPEDS-d21":
+sas_script_arguments = { "t318-30-IPEDS-d21.sas":
                         {"dataYear": "d22",
                         "year": "2019",
-                        "cy_year": "2020" },
-                    "t318-40-d21-MR":
-                        {"digest_year": "d21",
-                        "schyear2": "2019-20",
-                        "datayear2": "2020",
-                        "schyear1": "2018-19",
-                        "datayear1": "2019" },
-                    "t318-40-d21-MR": 
-                        {"digest_year": "d21",
-                        "schyear2": "2019-20",
-                        "datayear2": "2020",
-                        "schyear1": "2018-19",
-                        "datayear1": "2019"
-                        }
-                    
-
+                        "cy_year": "2020" }
 }
 
 # Define Main DAG for CCD pipeline 
@@ -67,9 +52,15 @@ def connect_to_server(run_command):
             ssh_client.close() 
 
 def compile_sas_command(sas_arguments):
+    
     for sas_key in sas_arguments:
+        command_str = "sas" + sas_key 
         for key, value in sas_key:
+            argument_str = " -set " + key + " " + value
             print(key , "->", value)
+            command_str = command_str + argument_str
+    print(command_str)
+
 
 
 def sas_completion():
@@ -116,7 +107,7 @@ def mrt_completion():
 compile_sas = PythonOperator(
     task_id='compile_sas_commands',
     python_callable=compile_sas_command,
-    op_kwargs= sas_arguments,
+    op_kwargs= {"sas_arguments": sas_script_arguments},
     dag=dag
 )
 
