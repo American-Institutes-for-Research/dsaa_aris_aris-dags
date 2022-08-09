@@ -21,23 +21,42 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+sas_arguments = { "t318-30-IPEDS-d21":
+                        {"dataYear": "d22",
+                        "year": "2019",
+                        "cy_year": "2020" },
+                    "t318-40-d21-MR":
+                        {"digest_year": "d21",
+                        "schyear2": "2019-20",
+                        "datayear2": "2020",
+                        "schyear1": "2018-19",
+                        "datayear1": "2019" },
+                    "t318-40-d21-MR": 
+                        {"digest_year": "d21",
+                        "schyear2": "2019-20",
+                        "datayear2": "2020",
+                        "schyear1": "2018-19",
+                        "datayear1": "2019"
+                        }
+                    
+
+}
+
 # Define Main DAG for CCD pipeline 
 dag = DAG(dag_id='aris_ipeds_completion_etl',
           default_args=default_args,
         #   schedule_interval='0,10,20,30,40,50 * * * *',
           dagrun_timeout=timedelta(seconds=3600))
 
-def sas_completion():
-    '''
-    Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
-    '''
+def connect_to_server(run_command):
+    print(run_command)
     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
     ssh_client = None
     print(ssh)
     try:
         ssh_client = ssh.get_conn()
         ssh_client.load_system_host_keys()
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && FOR %I in (*.sas) DO sas %I'
+        command = run_command 
         stdin, stdout, stderr = ssh_client.exec_command(command)
         out = stdout.read().decode().strip()
         error = stderr.read().decode().strip()
@@ -45,7 +64,21 @@ def sas_completion():
         print(error)
     finally:
         if ssh_client:
-            ssh_client.close()
+            ssh_client.close() 
+
+def compile_sas_command(sas_arguments):
+    for sas_key in sas_arguments:
+        for key in sas_key:
+            print(key , "->", sas_arguments[sas_key][key])
+
+
+def sas_completion():
+    '''
+    Purpose: execute all Survey Completion Sas Scripts 
+    '''
+    
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && FOR %I in (*.sas) DO sas %I'
+        
 
 def mrt_completion():
     '''
@@ -68,17 +101,23 @@ def mrt_completion():
             ssh_client.close()            
 
 # Generate Nonfiscal state from CCD Data with SAS
-gen_completion = PythonOperator(
-    task_id='gen_completion',
-    python_callable=sas_completion,
-    dag=dag
-)
+# gen_completion = PythonOperator(
+#     task_id='gen_completion',
+#     python_callable=sas_completion,
+#     dag=dag
+# )
 
-gen_completion_mrt = PythonOperator(
-    task_id='load_mrt_completion',
-    python_callable=mrt_completion,
+# gen_completion_mrt = PythonOperator(
+#     task_id='load_mrt_completion',
+#     python_callable=mrt_completion,
+#     dag=dag
+# )
+
+compile_sas = PythonOperator(
+    task_id='compile_sas_commands',
+    python_callable=compile_sas_command,
     dag=dag
 )
 
 # DAG Dependancy
-gen_completion >> gen_completion_mrt
+#gen_completion >> gen_completion_mrt
