@@ -276,22 +276,22 @@ def mrt_completion():
 #     dag=dag
 # )
 
-qc_sas_output = ShortCircuitOperator(
-    task_id='qc_sas_output',
-    python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run},
-    trigger_rule='all_success',
-    dag=dag
-)
-
-##Write Data to DB
-# write_to_db = PythonOperator(
-#     task_id='write_to_db',
-#     python_callable=write_to_db,
-#     op_kwargs= {"digest_year": digest_year},
-#     trigger_rule = "none_failed", 
+# qc_sas_output = ShortCircuitOperator(
+#     task_id='qc_sas_output',
+#     python_callable= qc_sas_output,
+#     op_kwargs= {"qc_run": QC_Run},
+#     trigger_rule='all_success',
 #     dag=dag
 # )
+
+##Write Data to DB
+write_to_db = PythonOperator(
+    task_id='write_to_db',
+    python_callable=write_to_db,
+    op_kwargs= {"digest_year": digest_year},
+    trigger_rule = "none_failed", 
+    dag=dag
+)
 
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -303,5 +303,5 @@ qc_sas_output = ShortCircuitOperator(
 #gen_completion >> gen_completion_mrt
 
 #run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-qc_sas_output >>  Label("Write to DB")  
-#write_to_db  >> Label("QC Check:Database")
+#qc_sas_output >>  Label("Write to DB")  
+write_to_db  >> Label("QC Check:Database")
