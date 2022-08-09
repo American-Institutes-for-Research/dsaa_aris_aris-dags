@@ -215,7 +215,7 @@ def qc_sas_logs(qc_run):
     if(qc_run == "False"):
         return False
     else:
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py  d21 "Survey Completion SAS Code" '
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py d21 "Survey Completion SAS Code" '
         error_strings= ["Critical Errors"]
         results = connect_to_server_qc(command, error_strings)
         return (results)
@@ -253,12 +253,12 @@ def mrt_completion():
             ssh_client.close()            
 
 # Generate Nonfiscal state from CCD Data with SAS
-run_sas_scripts = PythonOperator(
-    task_id='run_sas_scripts',
-    python_callable=sas_completion,
-    op_kwargs= {"sas_arguments": sas_script_arguments},
-    dag=dag
-)
+# run_sas_scripts = PythonOperator(
+#     task_id='run_completion_sas_scripts',
+#     python_callable=sas_completion,
+#     op_kwargs= {"sas_arguments": sas_script_arguments},
+#     dag=dag
+# )
 
 qc_sas_logs = ShortCircuitOperator(
     task_id='qc_sas_logs',
@@ -268,13 +268,13 @@ qc_sas_logs = ShortCircuitOperator(
     dag=dag
 )
 
-qc_sas_output = ShortCircuitOperator(
-    task_id='qc_sas_output',
-    python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_output = ShortCircuitOperator(
+#     task_id='qc_sas_output',
+#     python_callable= qc_sas_output,
+#     op_kwargs= {"qc_run": QC_Run},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -285,4 +285,6 @@ qc_sas_output = ShortCircuitOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 
-run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+#run_sas_scripts  >>  Label("QC Checks:Sas Output") >> 
+qc_sas_logs 
+#>> qc_sas_output
