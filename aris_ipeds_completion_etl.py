@@ -28,7 +28,7 @@ sas_script_arguments = {
                         "year": "2020",
                         "cy_year": "2021" },
 
-                    ##Update All These to new year
+                    
                     "t318-40-d21-MR.sas":
                         {"digest_year": "d22",
                         "schyear2": "2020-21",
@@ -47,6 +47,7 @@ sas_script_arguments = {
                     "year": "2020-21",
                     "shortyear": "2021"
                     },
+                    ##Need to Fix
                     "t319-10-20-d21-MR.sas":
                     {"digest_year": "d22",
                     "cy":"2020-21",
@@ -67,7 +68,23 @@ sas_script_arguments = {
                     "cy_long": "2021",
                     "pyyear": "19-20",
                     "py_long": "2020" 
+                    },
+                    "t320-20-IPEDS-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "year":"2020-21",
+                    "cy_long": "2021",
+                    "PYyear": "2019-20",
+                    "py_long": "2020" 
+                    },
+                    "t321-30-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "year":"2020-21",
+                    "cy_long": "2021",
+                    "pyyear": "2019-20",
+                    "py_long": "2020" 
+
                     }
+
 }
 
 # Define Main DAG for CCD pipeline 
