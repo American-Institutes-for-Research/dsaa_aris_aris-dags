@@ -24,7 +24,7 @@ default_args = {
     'email_on_retry': False,
     'start_date': datetime.now() - timedelta(minutes=20),
     'retries': 0,
-    'retry_delay': timedelta(minutes=15),
+    'retry_delay': timedelta(minutes=90),
 }
 
 sas_script_arguments = { 
@@ -238,7 +238,18 @@ def write_to_db(digest_year):
     '''
     
     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_to_db.py ' + digest_year + ' Survey_Completion'
-    connect_to_server(command)     
+    connect_to_server(command)    
+
+
+def qc_database_linking(qc_run, digest_year):
+
+    if(qc_run == "False"):
+        return False
+    else:
+        error_strings= ["Please resolve these duplicated values issue", " Discrepancy found between Sas output file and database value"]
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  digest_year + ' Survey_Completion'
+        results = connect_to_server_qc(command, error_strings)
+        return (results) 
 
 def mrt_completion():
     '''
@@ -293,6 +304,16 @@ write_to_db = PythonOperator(
     dag=dag
 )
 
+#QC Data written to DB
+qc_database = ShortCircuitOperator(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    op_kwargs= {"qc_run": QC_Run, 
+                "digest_year": digest_year},
+    trigger_rule='all_success',
+    dag = dag
+)
+
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
 #     python_callable=mrt_completion,
@@ -304,4 +325,5 @@ write_to_db = PythonOperator(
 
 #run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 #qc_sas_output >>  Label("Write to DB")  
-write_to_db  >> Label("QC Check:Database")
+##write_to_db  >> Label("QC Check:Database")
+##qc_database 
