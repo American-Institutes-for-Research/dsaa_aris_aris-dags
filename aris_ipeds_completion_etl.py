@@ -225,7 +225,7 @@ def qc_sas_output(qc_run):
     '''
     Purpose: check output of sas output files
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + '&& python qc_sas_output.py d22 Survey-Completion '
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + '&& python qc_sas_output.py d22 Survey_Completion '
     if(qc_run == "False"):
         return False
     else:
@@ -268,13 +268,13 @@ qc_sas_logs = ShortCircuitOperator(
     dag=dag
 )
 
-# qc_sas_output = ShortCircuitOperator(
-#     task_id='qc_sas_output',
-#     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+qc_sas_output = ShortCircuitOperator(
+    task_id='qc_sas_output',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": QC_Run},
+    trigger_rule='all_success',
+    dag=dag
+)
 
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -286,5 +286,4 @@ qc_sas_logs = ShortCircuitOperator(
 #gen_completion >> gen_completion_mrt
 
 #run_sas_scripts  >>  Label("QC Checks:Sas Output") >> 
-qc_sas_logs 
-#>> qc_sas_output
+qc_sas_logs >> qc_sas_output
