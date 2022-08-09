@@ -215,7 +215,7 @@ def qc_sas_logs(qc_run):
     if(qc_run == "False"):
         return False
     else:
-        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py d21 "Survey Completion SAS Code" '
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' python sas_parser.py d21 "Completion Survey SAS code" '
         error_strings= ["Critical Errors"]
         results = connect_to_server_qc(command, error_strings)
         return (results)
@@ -225,7 +225,7 @@ def qc_sas_output(qc_run):
     '''
     Purpose: check output of sas output files
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py d22 Survey-Completion '
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' python qc_sas_output.py d22 Survey-Completion '
     if(qc_run == "False"):
         return False
     else:
