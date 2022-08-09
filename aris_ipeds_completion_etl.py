@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime
 from pickle import TRUE
+from sqlite3 import connect
 import airflow
 import code_executer
 from airflow import DAG
@@ -79,8 +80,9 @@ def sas_completion(sas_arguments):
     for sas_key in sas_arguments:
         sas_command = compile_sas_command(sas_arguments, sas_key)
         print(sas_command)
-    #command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && FOR %I in (*.sas) DO sas %I'
-        
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && ' + sas_command
+    print(command)
+    connect_to_server(command)    
 
 def mrt_completion():
     '''
