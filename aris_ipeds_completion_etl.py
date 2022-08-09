@@ -225,7 +225,7 @@ def qc_sas_output(qc_run):
     '''
     Purpose: check output of sas output files
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' python qc_sas_output.py d22 Survey-Completion '
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + '&& python qc_sas_output.py d22 Survey-Completion '
     if(qc_run == "False"):
         return False
     else:
