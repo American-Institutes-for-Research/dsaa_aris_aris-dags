@@ -51,32 +51,35 @@ def connect_to_server(run_command):
         if ssh_client:
             ssh_client.close() 
 
-def compile_sas_command(sas_arguments):
+def compile_sas_command(sas_arguments, sas_key):
     print(sas_arguments)
+    command_str = "sas " + sas_key
+    sas_dict = sas_arguments[sas_key]
+    for key in sas_dict:
+        argument_str = " -set " + key + " " + sas_dict[key]
+        print(key , "->", sas_dict[key])
+        command_str = command_str + argument_str
 
-    for sas_key, sas_args in sas_arguments.items():
-        print(sas_key)
-        command_str = "sas " + sas_key
-        for key in sas_args:
-            argument_str = " -set " + key + " " + sas_args[key]
-            print(key , "->", sas_args[key])
-            command_str = command_str + argument_str
-    # for sas_key in sas_arguments:
-    #     command_str = "sas" + sas_key 
-    #     for key, value in sas_key:
-    #         argument_str = " -set " + key + " " + value
-    #         print(key , "->", value)
+    return command_str
+    # for sas_key, sas_args in sas_arguments.items():
+    #     print(sas_key)
+    #     command_str = "sas " + sas_key
+    #     for key in sas_args:
+    #         argument_str = " -set " + key + " " + sas_args[key]
+    #         print(key , "->", sas_args[key])
     #         command_str = command_str + argument_str
-    print(command_str)
+    # print(command_str)
 
 
 
-def sas_completion():
+def sas_completion(sas_arguments):
     '''
     Purpose: execute all Survey Completion Sas Scripts 
     '''
-    
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && FOR %I in (*.sas) DO sas %I'
+    for sas_key in sas_arguments:
+        sas_command = compile_sas_command(sas_arguments, sas_key)
+        print(sas_command)
+    #command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && FOR %I in (*.sas) DO sas %I'
         
 
 def mrt_completion():
@@ -100,11 +103,12 @@ def mrt_completion():
             ssh_client.close()            
 
 # Generate Nonfiscal state from CCD Data with SAS
-# gen_completion = PythonOperator(
-#     task_id='gen_completion',
-#     python_callable=sas_completion,
-#     dag=dag
-# )
+run_sas_scripts = PythonOperator(
+    task_id='run_sas_scripts',
+    python_callable=sas_completion,
+    op_kwargs= {"sas_arguments": sas_script_arguments},
+    dag=dag
+)
 
 # gen_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -112,12 +116,14 @@ def mrt_completion():
 #     dag=dag
 # )
 
-compile_sas = PythonOperator(
-    task_id='compile_sas_commands',
-    python_callable=compile_sas_command,
-    op_kwargs= {"sas_arguments": sas_script_arguments},
-    dag=dag
-)
+# compile_sas = PythonOperator(
+#     task_id='compile_sas_commands',
+#     python_callable=compile_sas_command,
+#     op_kwargs= {"sas_arguments": sas_script_arguments},
+#     dag=dag
+# )
 
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
+
+run_sas_scripts 
