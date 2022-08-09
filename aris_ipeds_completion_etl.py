@@ -109,10 +109,29 @@ sas_script_arguments = {
                     {"digest_year": "d21",
                     "cy":"2019_20",
                     "cy_long": "2020",
-                    "py": "2018-19",
+                    "py": "2018_19",
                     "py_long": "2019" 
-                    }
+                    },
                     ##Dont need to update
+                    "t325-sup-d21-MR.sas" :
+                    {"digest_year": "d22",
+                    "cy":"2020-21",
+                    "cy_long": "2021",
+                    "py": "2019-20",
+                    "py_long": "2020"
+                    },
+                    "table318-45-IPEDS-d21-MR.sas":
+                    {"digest_year": "d22",
+                    "cy":"2021",
+                    "py": "2020",  
+                    },
+                    "table321-20-IPEDS-d21_MR.sas":
+                    {"digest_year": "d22",
+                    "year": "2020",
+                    "PYyear": "2019",
+                    "cy_long": "2021",
+                    "py_long": "2020"
+                    }
 
 
 }
