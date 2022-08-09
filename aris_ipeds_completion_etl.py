@@ -24,8 +24,8 @@ default_args = {
 
 sas_script_arguments = { "t318-30-IPEDS-d21.sas":
                         {"dataYear": "d22",
-                        "year": "2019",
-                        "cy_year": "2020" }
+                        "year": "2020",
+                        "cy_year": "2021" }
 }
 
 # Define Main DAG for CCD pipeline 
