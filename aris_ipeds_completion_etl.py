@@ -25,7 +25,13 @@ default_args = {
 sas_script_arguments = { "t318-30-IPEDS-d21.sas":
                         {"dataYear": "d22",
                         "year": "2020",
-                        "cy_year": "2021" }
+                        "cy_year": "2021" },
+                    "t318-40-d21-MR.sas":
+                        {"digest_year": "d21",
+                        "schyear2": "2019-20",
+                        "datayear2": "2020",
+                        "schyear1": "2018-19",
+                        "datayear1": "2019" }
 }
 
 # Define Main DAG for CCD pipeline 
@@ -80,9 +86,9 @@ def sas_completion(sas_arguments):
     for sas_key in sas_arguments:
         sas_command = compile_sas_command(sas_arguments, sas_key)
         print(sas_command)
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && ' + sas_command
-    print(command)
-    connect_to_server(command)    
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '\\d21'+ '\\Completion Survey SAS code'+' && ' + sas_command
+        print(command)
+        connect_to_server(command)    
 
 def mrt_completion():
     '''
