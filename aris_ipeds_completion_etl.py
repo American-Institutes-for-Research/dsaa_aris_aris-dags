@@ -246,7 +246,7 @@ def qc_database_linking(qc_run, digest_year):
     if(qc_run == "False"):
         return False
     else:
-        error_strings= ["Please resolve these duplicated values issue", " Discrepancy found between Sas output file and database value"]
+        error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  digest_year + ' Survey_Completion'
         results = connect_to_server_qc(command, error_strings)
         return (results) 
@@ -259,37 +259,37 @@ def mrt_completion():
     connect_to_server(command)             
 
 # Generate Nonfiscal state from CCD Data with SAS
-run_sas_scripts = PythonOperator(
-    task_id='run_completion_sas_scripts',
-    python_callable=sas_completion,
-    op_kwargs= {"sas_arguments": sas_script_arguments},
-    dag=dag
-)
+# run_sas_scripts = PythonOperator(
+#     task_id='run_completion_sas_scripts',
+#     python_callable=sas_completion,
+#     op_kwargs= {"sas_arguments": sas_script_arguments},
+#     dag=dag
+# )
 
-qc_sas_logs = ShortCircuitOperator(
-    task_id='qc_sas_logs',
-    python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": QC_Run},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_logs = ShortCircuitOperator(
+#     task_id='qc_sas_logs',
+#     python_callable=qc_sas_logs,
+#     op_kwargs= {"qc_run": QC_Run},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
-qc_sas_output = ShortCircuitOperator(
-    task_id='qc_sas_output',
-    python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_output = ShortCircuitOperator(
+#     task_id='qc_sas_output',
+#     python_callable= qc_sas_output,
+#     op_kwargs= {"qc_run": QC_Run},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
-##Write Data to DB
-write_to_db = PythonOperator(
-    task_id='write_to_db',
-    python_callable=write_to_db,
-    op_kwargs= {"digest_year": digest_year},
-    trigger_rule = "none_failed", 
-    dag=dag
-)
+# ##Write Data to DB
+# write_to_db = PythonOperator(
+#     task_id='write_to_db',
+#     python_callable=write_to_db,
+#     op_kwargs= {"digest_year": digest_year},
+#     trigger_rule = "none_failed", 
+#     dag=dag
+# )
 
 #QC Data written to DB
 qc_database = ShortCircuitOperator(
@@ -310,7 +310,8 @@ qc_database = ShortCircuitOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 
-run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-qc_sas_output >>  Label("Write to DB")  >> write_to_db
-write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
+# run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+# qc_sas_output >>  Label("Write to DB")  >> write_to_db
+# write_to_db  >> Label("QC Check:Database") >>
+qc_database >> Label("Create Tables") 
 ##load_completion_mrt
