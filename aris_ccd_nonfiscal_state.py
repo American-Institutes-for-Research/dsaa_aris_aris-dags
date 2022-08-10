@@ -140,7 +140,7 @@ def qc_sas_logs(qc_run):
     Purpose: check output of sas log files.
     '''
     if(qc_run == "False"):
-        return False
+        return True
     else:
         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
         error_strings= ["Critical Errors"]
@@ -157,7 +157,7 @@ def qc_sas_output(qc_run, year):
     print(file)
     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal ' + file
     if(qc_run == "False"):
-        return False
+        return True
     else:
         connect_to_server(command)
         return True
@@ -167,7 +167,7 @@ def qc_database_linking(qc_run, year):
     file = 'Output-CCD-ST-' + year + '.xlsx'
 
     if(qc_run == "False"):
-        return False
+        return True
     else:
         error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
