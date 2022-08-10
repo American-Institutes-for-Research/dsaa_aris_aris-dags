@@ -273,7 +273,7 @@ write_to_db = PythonOperator(
 
 
 
-Label("Downloading Links") >> download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
+Label("Check for New Links") >> download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
 download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Check:Database")>> qc_database
 qc_database >> Label("Create Tables") 
