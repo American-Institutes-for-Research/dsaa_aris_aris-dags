@@ -169,7 +169,7 @@ def qc_database_linking(qc_run, year):
     if(qc_run == "False"):
         return False
     else:
-        error_strings= ["Please resolve these duplicated values issue", " Discrepancy found between Sas output file and database value"]
+        error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
         results = connect_to_server_qc(command, error_strings)
         return (results)
