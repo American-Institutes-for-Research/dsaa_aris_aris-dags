@@ -62,8 +62,8 @@ def check_azure_to_database():
     return (results)
 
 def check_azure_to_NCES():
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python check_connections_azure_to_db.py' 
-    error_strings= [" Response [200]"]
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python check_connections_azure_to_nces.py' 
+    error_strings= ["Response [200]"]
     results = connect_to_server_qc(command, error_strings)
     print(results)
     if results == False:
@@ -333,11 +333,11 @@ check_azure_to_NCES = ShortCircuitOperator(
 
 
 
-
-# Label("Check for New Links") >> download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
+# check_airflow_to_azure >>  Label("Checking Connections") >> check_azure_to_NCES >> check_azure_to_database >> Label("Check for New Links") >> download_links
+# download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
 # download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 # qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Check:Database")>> qc_database
 # qc_database >> Label("Create Tables") 
-# ##>> load_mrt_nonfiscal_state 
+##>> load_mrt_nonfiscal_state 
 
 check_airflow_to_azure >> check_azure_to_NCES >> check_azure_to_database 
