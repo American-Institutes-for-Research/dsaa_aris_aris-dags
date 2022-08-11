@@ -9,6 +9,7 @@ from airflow.operators.python import PythonOperator, ShortCircuitOperator
 #from airflow.contrib.operators.ssh_operator import SSHOperator
 from airflow.contrib.hooks.ssh_hook import SSHHook
 from airflow.utils.edgemodifier import Label
+import requests
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ccd' # File housing ARIS repos on SAS server's C drive
 QC_Run = "False"
@@ -59,6 +60,18 @@ def check_azure_to_database():
     else:
         results = False
     return (results)
+
+def check_azure_to_NCES():
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python check_connections_azure_to_db.py' 
+    error_strings= [" Response [200]"]
+    results = connect_to_server_qc(command, error_strings)
+    print(results)
+    if results == False:
+        results = True
+    else:
+        results = False
+    return (results)
+
    
 
 def connect_to_server(run_command):
@@ -225,6 +238,13 @@ check_azure_to_database = ShortCircuitOperator(
     dag = dag
 )
 
+check_azure_to_NCES = ShortCircuitOperator(
+    task_id = "check_azure_to_NCES",
+    python_callable = check_azure_to_NCES,
+    trigger_rule='all_success',
+    dag = dag
+)
+
 # #Download CCD Links 
 # download_links = ShortCircuitOperator(
 #     task_id='download_links',
@@ -320,4 +340,4 @@ check_azure_to_database = ShortCircuitOperator(
 # qc_database >> Label("Create Tables") 
 # ##>> load_mrt_nonfiscal_state 
 
-check_airflow_to_azure >> check_azure_to_database 
+check_airflow_to_azure >> check_azure_to_NCES >> check_azure_to_database 
