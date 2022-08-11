@@ -50,9 +50,10 @@ def check_airflow_to_azure():
             ssh_client.close() 
 
 def check_azure_to_database():
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python  check_connections_azure_to_db.py' 
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python check_connections_azure_to_db.py' 
     error_strings= ["Closing db connection"]
     results = connect_to_server_qc(command, error_strings)
+    print(results)
     if results == False:
         results = True
     else:
