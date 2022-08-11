@@ -245,99 +245,99 @@ check_azure_to_NCES = ShortCircuitOperator(
     dag = dag
 )
 
-# #Download CCD Links 
-# download_links = ShortCircuitOperator(
-#     task_id='download_links',
-#     python_callable=links,
-#     op_kwargs= {"Download_Data": Download_Data},
-#     dag=dag   
-# )
+#Download CCD Links 
+download_links = ShortCircuitOperator(
+    task_id='download_links',
+    python_callable=links,
+    op_kwargs= {"Download_Data": Download_Data},
+    dag=dag   
+)
 
-# # # Download CCD Data 
-# download_data = PythonOperator(
-#     task_id='download_data',
-#     python_callable=download_dat,
-#     dag=dag
-# )
+# # Download CCD Data 
+download_data = PythonOperator(
+    task_id='download_data',
+    python_callable=download_dat,
+    dag=dag
+)
 
-# # # Download Dodea Data 
-# download_dodea_data = PythonOperator(
-#     task_id='download_dodea_data',
-#     python_callable= download_dodea_dat,
-#     dag=dag
-# )
-# ##Download Edge Data
-# download_edge_data = PythonOperator(
-#     task_id='download_edge_data',
-#     python_callable= ccd_edge_downloader,
-#     dag=dag
-# )
+# # Download Dodea Data 
+download_dodea_data = PythonOperator(
+    task_id='download_dodea_data',
+    python_callable= download_dodea_dat,
+    dag=dag
+)
+##Download Edge Data
+download_edge_data = PythonOperator(
+    task_id='download_edge_data',
+    python_callable= ccd_edge_downloader,
+    dag=dag
+)
 
 
-# # Generate Nonfiscal state from CCD Data with SAS
-# gen_nonfiscal = PythonOperator(
-#     task_id='gen_nonfiscal',
-#     python_callable=nonfiscal,
-#     trigger_rule='all_success',
-#     op_kwargs= {"year": sas_variables['Year'], 
-#                 "version": sas_variables['Version']},
-#     dag=dag
-# )
+# Generate Nonfiscal state from CCD Data with SAS
+gen_nonfiscal = PythonOperator(
+    task_id='gen_nonfiscal',
+    python_callable=nonfiscal,
+    trigger_rule='all_success',
+    op_kwargs= {"year": sas_variables['Year'], 
+                "version": sas_variables['Version']},
+    dag=dag
+)
 
-# #QC Steps
-#     #QC Sas Logs
-# qc_sas_logs = ShortCircuitOperator(
-#     task_id='qc_sas_logs',
-#     python_callable=qc_sas_logs,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
-#     #QC Sas Output
-# qc_sas_output = ShortCircuitOperator(
-#     task_id='qc_sas_output',
-#     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run,
-#                   "year": sas_variables['Year']},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+#QC Steps
+    #QC Sas Logs
+qc_sas_logs = ShortCircuitOperator(
+    task_id='qc_sas_logs',
+    python_callable=qc_sas_logs,
+    op_kwargs= {"qc_run": QC_Run},
+    trigger_rule='all_success',
+    dag=dag
+)
+    #QC Sas Output
+qc_sas_output = ShortCircuitOperator(
+    task_id='qc_sas_output',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": QC_Run,
+                  "year": sas_variables['Year']},
+    trigger_rule='all_success',
+    dag=dag
+)
 
-# #QC Data written to DB
-# qc_database = ShortCircuitOperator(
-#     task_id = "qc_database",
-#     python_callable = qc_database_linking,
-#     op_kwargs= {"qc_run": QC_Run, 
-#                 "year": sas_variables['Year']},
+#QC Data written to DB
+qc_database = ShortCircuitOperator(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    op_kwargs= {"qc_run": QC_Run, 
+                "year": sas_variables['Year']},
+    trigger_rule='all_success',
+    dag = dag
+)
+
+
+##Write Data to DB
+write_to_db = PythonOperator(
+    task_id='write_to_db',
+    python_callable=write_to_db,
+    op_kwargs= {"year": sas_variables['Year']},
+    trigger_rule = "none_failed", 
+    dag=dag
+)
+
+##Load Tables into DB
+# load_mrt_nonfiscal_state = PythonOperator(
+#     task_id = "load_mrt_nonfiscal_state",
+#     python_callable = mrt_nonfiscal_state,
 #     trigger_rule='all_success',
 #     dag = dag
 # )
 
 
-# ##Write Data to DB
-# write_to_db = PythonOperator(
-#     task_id='write_to_db',
-#     python_callable=write_to_db,
-#     op_kwargs= {"year": sas_variables['Year']},
-#     trigger_rule = "none_failed", 
-#     dag=dag
-# )
 
-# ##Load Tables into DB
-# # load_mrt_nonfiscal_state = PythonOperator(
-# #     task_id = "load_mrt_nonfiscal_state",
-# #     python_callable = mrt_nonfiscal_state,
-# #     trigger_rule='all_success',
-# #     dag = dag
-# # )
-
-
-
-# check_airflow_to_azure >>  Label("Checking Connections") >> check_azure_to_NCES >> check_azure_to_database >> Label("Check for New Links") >> download_links
-# download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
-# download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-# qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Check:Database")>> qc_database
-# qc_database >> Label("Create Tables") 
+check_airflow_to_azure >>  Label("Checking Connections") >> check_azure_to_NCES >> check_azure_to_database >> Label("Check for New Links") >> download_links
+download_links >> Label("Downloading Data") >> download_data >> download_dodea_data >> download_edge_data
+download_edge_data >> Label("Running Sas Script") >> gen_nonfiscal >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+qc_sas_output >>  Label("Write to DB") >> write_to_db >> Label("QC Check:Database")>> qc_database
+qc_database >> Label("Create Tables") 
 ##>> load_mrt_nonfiscal_state 
 
-check_airflow_to_azure >> check_azure_to_NCES >> check_azure_to_database 
+# check_airflow_to_azure >> check_azure_to_NCES >> check_azure_to_database 
