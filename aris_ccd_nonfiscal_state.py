@@ -129,16 +129,33 @@ def links(Download_Data):
     '''
     if(Download_Data == "False"):
         return True
-    command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
-    connect_to_server(command)
+
+    command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py'
+    error_strings= ["Finished checking for links"]
+    results = connect_to_server_qc(command, error_strings)
+    print(results)
+    if results == False:
+        results = True
+    else:
+        results = False
+    return (results)
+     
+    
 
 
 def download_dat():
     '''
     Purpose: execute ccd_data_downloader.py on command line to download CCD data 
     '''
+    error_strings= ["Finished downloading data from website"]
     command = 'cd ' +  SERVICE_GIT_DIR +   '\\IO' ' && python ccd_data_downloader.py'
-    connect_to_server(command)
+    results = connect_to_server_qc(command, error_strings)
+    print(results)
+    if results == False:
+        results = True
+    else:
+        results = False
+    return (results)
 
 def download_dodea_dat():
     '''
