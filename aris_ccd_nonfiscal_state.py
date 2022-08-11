@@ -43,7 +43,7 @@ def check_connections():
 
 
 def check_airflow_to_microsoft():
-    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh = SSHHook(ssh_conn_id="svc")
     ssh_client = None
     print(ssh)
     try:
