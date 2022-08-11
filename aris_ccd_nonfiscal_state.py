@@ -123,103 +123,103 @@ def connect_to_server_qc(run_command,error_strings_list):
             else:
                 return(True) 
     
-# def links(Download_Data):
-#     '''
-#     Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
-#     '''
-#     if(Download_Data == "False"):
-#         return True
-#     command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
-#     connect_to_server(command)
+def links(Download_Data):
+    '''
+    Purpose: execute ccd_data_list_downloader.py  on command line to generate list of CCD links
+    '''
+    if(Download_Data == "False"):
+        return True
+    command = 'cd ' +  SERVICE_GIT_DIR  + '\\IO' + '&& python ccd_data_list_downloader.py' 
+    connect_to_server(command)
 
 
-# def download_dat():
-#     '''
-#     Purpose: execute ccd_data_downloader.py on command line to download CCD data 
-#     '''
-#     command = 'cd ' +  SERVICE_GIT_DIR +   '\\IO' ' && python ccd_data_downloader.py'
-#     connect_to_server(command)
+def download_dat():
+    '''
+    Purpose: execute ccd_data_downloader.py on command line to download CCD data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR +   '\\IO' ' && python ccd_data_downloader.py'
+    connect_to_server(command)
 
-# def download_dodea_dat():
-#     '''
-#     Purpose: execute ccd_dodea_downloader.py on command line to download CCD data 
-#     '''
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_dodea_downloader.py' 
-#     connect_to_server(command)
+def download_dodea_dat():
+    '''
+    Purpose: execute ccd_dodea_downloader.py on command line to download CCD data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_dodea_downloader.py' 
+    connect_to_server(command)
 
-# def ccd_edge_downloader():
-#     '''
-#     Purpose: execute ccd_edge_downloader.py on command line to download CCD data 
-#     '''
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_edge_downloader.py' 
-#     connect_to_server(command)
-
-
-# def nonfiscal(year, version):
-#     '''
-#     Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
-#     '''
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
-#     connect_to_server(command)
+def ccd_edge_downloader():
+    '''
+    Purpose: execute ccd_edge_downloader.py on command line to download CCD data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\IO' ' && python ccd_edge_downloader.py' 
+    connect_to_server(command)
 
 
-# def write_to_db(year): 
-#     '''
-#     Purpose: Write Output file to the db
-#     '''
-#     file = 'Output-CCD-ST-' + year + '.xlsx'
-#     print(file)
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_to_db.py ' + year + ' nonfiscal ' + file
-#     connect_to_server(command)    
+def nonfiscal(year, version):
+    '''
+    Purpose: execute ccd_nonfiscal_state_RE2.sas on command line to generate nonfiscal long data from ccd data 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\SAS' + '&& sas ccd_nonfiscal_state-RE2.sas  -set cnfyr ' + year + ' -set cnfv ' + version  
+    connect_to_server(command)
 
 
-# def qc_sas_logs(qc_run):
-#     '''
-#     Purpose: check output of sas log files.
-#     '''
-#     if(qc_run == "False"):
-#         return True
-#     else:
-#         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
-#         error_strings= ["Critical Errors"]
-#         results = connect_to_server_qc(command, error_strings)
-#         return (results)
+def write_to_db(year): 
+    '''
+    Purpose: Write Output file to the db
+    '''
+    file = 'Output-CCD-ST-' + year + '.xlsx'
+    print(file)
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_to_db.py ' + year + ' nonfiscal ' + file
+    connect_to_server(command)    
+
+
+def qc_sas_logs(qc_run):
+    '''
+    Purpose: check output of sas log files.
+    '''
+    if(qc_run == "False"):
+        return True
+    else:
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python sas_parser.py ccd_nonfiscal_state-RE2.log' 
+        error_strings= ["Critical Errors"]
+        results = connect_to_server_qc(command, error_strings)
+        return (results)
 
 
 
-# def qc_sas_output(qc_run, year): 
-#     '''
-#     Purpose: check output of sas output files
-#     '''
-#     file = 'Output-CCD-ST-' + year + '.xlsx'
-#     print(file)
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal ' + file
-#     if(qc_run == "False"):
-#         return True
-#     else:
-#         connect_to_server(command)
-#         return True
+def qc_sas_output(qc_run, year): 
+    '''
+    Purpose: check output of sas output files
+    '''
+    file = 'Output-CCD-ST-' + year + '.xlsx'
+    print(file)
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_sas_output.py ' + year + ' nonfiscal ' + file
+    if(qc_run == "False"):
+        return True
+    else:
+        connect_to_server(command)
+        return True
 
-# def qc_database_linking(qc_run, year):
-#     ##This is the file to run through the script
-#     file = 'Output-CCD-ST-' + year + '.xlsx'
+def qc_database_linking(qc_run, year):
+    ##This is the file to run through the script
+    file = 'Output-CCD-ST-' + year + '.xlsx'
 
-#     if(qc_run == "False"):
-#         return True
-#     else:
-#         error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
-#         command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
-#         results = connect_to_server_qc(command, error_strings)
-#         return (results)
+    if(qc_run == "False"):
+        return True
+    else:
+        error_strings= ["Please resolve these duplicated values issue", "Discrepancy found between Sas output file and database value"]
+        command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python qc_database.py ' +  year + ' nonfiscal ' + file
+        results = connect_to_server_qc(command, error_strings)
+        return (results)
 
-# def mrt_nonfiscal_state():
-#     '''
-#     Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
-#     '''
-#     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_state.py'
-#     error_strings = ['TypeError']
-#     results = connect_to_server_qc(command, error_strings)
-#     return (results)
+def mrt_nonfiscal_state():
+    '''
+    Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
+    '''
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_nonfiscal_state.py'
+    error_strings = ['TypeError']
+    results = connect_to_server_qc(command, error_strings)
+    return (results)
    
 ############# Operators ##################
 
