@@ -36,14 +36,8 @@ dag = DAG(dag_id='aris_ccd_nonfiscal_state_etl',
         #   schedule_interval='0,10,20,30,40,50 * * * *',
           dagrun_timeout=timedelta(seconds=3600))
 
-
-def check_connections():
-    check_airflow_to_microsoft()
-
-
-
-def check_airflow_to_microsoft():
-    ssh = SSHHook(ssh_conn_id="svc")
+def check_airflow_to_azure():
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
     ssh_client = None
     print(ssh)
     try:
@@ -55,54 +49,65 @@ def check_airflow_to_microsoft():
         if ssh_client:
             ssh_client.close() 
 
-# def connect_to_server(run_command):
-#     print(run_command)
-#     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-#     ssh_client = None
-#     print(ssh)
-#     try:
-#         ssh_client = ssh.get_conn()
-#         ssh_client.load_system_host_keys()
-#         command = run_command 
-#         stdin, stdout, stderr = ssh_client.exec_command(command)
-#         out = stdout.read().decode().strip()
-#         error = stderr.read().decode().strip()
-#         print(out)
-#         print(error)
-#     finally:
-#         if ssh_client:
-#             ssh_client.close() 
+def check_azure_to_database():
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python  check_connections_azure_to_db.py' 
+    error_strings= ["Closing db connection"]
+    results = connect_to_server_qc(command, error_strings)
+    if results == False:
+        results = True
+    else:
+        results = False
+    return (results)
+   
 
-# def connect_to_server_qc(run_command,error_strings_list):
-#     '''
-#     Purpose: check output of sas log files.
-#     '''
-#     error_strings= error_strings_list
-#     main_flag = 0
-#     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
-#     ssh_client = None
-#     print(ssh)
-#     try:
-#         ssh_client = ssh.get_conn()
-#         ssh_client.load_system_host_keys()
-#         command = run_command
-#         print(command)
-#         stdin, stdout, stderr = ssh_client.exec_command(command)
-#         stdout.channel.recv_exit_status()
-#         lines = stdout.readlines()
-#         for line in lines:
-#             print(line.strip())
-#             if any(strings in line for strings in error_strings):
-#                 main_flag = 1
-#         error = stderr.read().decode().strip()
-#         print(error)
-#     finally:
-#         if ssh_client:
-#             ssh_client.close() 
-#             if main_flag == 1:
-#                 return(False)
-#             else:
-#                 return(True) 
+def connect_to_server(run_command):
+    print(run_command)
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = run_command 
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        out = stdout.read().decode().strip()
+        error = stderr.read().decode().strip()
+        print(out)
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+
+def connect_to_server_qc(run_command,error_strings_list):
+    '''
+    Purpose: check output of sas log files.
+    '''
+    error_strings= error_strings_list
+    main_flag = 0
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        ssh_client.load_system_host_keys()
+        command = run_command
+        print(command)
+        stdin, stdout, stderr = ssh_client.exec_command(command)
+        stdout.channel.recv_exit_status()
+        lines = stdout.readlines()
+        for line in lines:
+            print(line.strip())
+            if any(strings in line for strings in error_strings):
+                main_flag = 1
+        error = stderr.read().decode().strip()
+        print(error)
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+            if main_flag == 1:
+                return(False)
+            else:
+                return(True) 
     
 # def links(Download_Data):
 #     '''
@@ -205,9 +210,16 @@ def check_airflow_to_microsoft():
 ############# Operators ##################
 
 #Load Tables into DB
-check_connections = PythonOperator(
-    task_id = "check_connections",
-    python_callable = check_connections,
+check_airflow_to_azure = PythonOperator(
+    task_id = "check_airflow_to_azure",
+    python_callable = check_airflow_to_azure,
+    trigger_rule='all_success',
+    dag = dag
+)
+
+check_azure_to_database = ShortCircuitOperator(
+    task_id = "check_azure_to_database",
+    python_callable = check_azure_to_database,
     trigger_rule='all_success',
     dag = dag
 )
@@ -307,4 +319,4 @@ check_connections = PythonOperator(
 # qc_database >> Label("Create Tables") 
 # ##>> load_mrt_nonfiscal_state 
 
-check_connections
+check_airflow_to_azure >> check_azure_to_database 
