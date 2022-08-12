@@ -271,7 +271,7 @@ download_links = ShortCircuitOperator(
 )
 
 # # Download CCD Data 
-download_data = PythonOperator(
+download_data =  ShortCircuitOperator(
     task_id='download_data',
     python_callable=download_dat,
     dag=dag
