@@ -204,14 +204,14 @@ write_to_db = PythonOperator(
 )
 
 # #QC Data written to DB
-# qc_database = ShortCircuitOperator(
-#     task_id = "qc_database",
-#     python_callable = qc_database_linking,
-#     op_kwargs= {"qc_run": QC_Run, 
-#                 "digest_year": digest_year},
-#     trigger_rule='all_success',
-#     dag = dag
-# )
+qc_database = ShortCircuitOperator(
+    task_id = "qc_database",
+    python_callable = qc_database_linking,
+    op_kwargs= {"qc_run": QC_Run, 
+                "year":year, "month":month, "file":file},
+    trigger_rule='all_success',
+    dag = dag
+)
 
 # load_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -224,6 +224,6 @@ write_to_db = PythonOperator(
 
 run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 qc_sas_output >>  Label("Write to DB")  >> write_to_db
-
+write_to_db  >> Label("QC Check:Database") >> qc_database
 # write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
 ##load_completion_mrt  
