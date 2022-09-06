@@ -106,7 +106,7 @@ def compile_sas_command(sas_arguments, sas_key):
         command_str = command_str + argument_str
     return command_str
 
-def run_sas_scripts(sas_arguments):
+def compile_sas_scripts(sas_arguments):
     '''
     Purpose: execute all Survey Completion Sas Scripts 
     '''
@@ -170,7 +170,7 @@ def mrt_completion():
 # Generate Nonfiscal state from CCD Data with SAS
 run_sas_scripts = PythonOperator(
     task_id='run_sas_scripts',
-    python_callable==run_sas_scripts,
+    python_callable = compile_sas_scripts,
     op_kwargs= {"sas_arguments": sas_script_arguments},
     dag=dag
 )
