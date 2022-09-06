@@ -255,7 +255,7 @@ def mrt_completion():
     '''
     Purpose: execute write_mrt.py on command line to generate mrt from nonfiscal long and write to database. 
     '''
-    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt_completion.py' 
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python write_mrt.py completion_survey'  
     connect_to_server(command)             
 
 # Generate Nonfiscal state from CCD Data with SAS
