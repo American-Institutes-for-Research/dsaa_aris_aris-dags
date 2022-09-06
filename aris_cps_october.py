@@ -17,7 +17,8 @@ from airflow.utils.edgemodifier import Label
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\cps' # File housing ARIS repos on SAS server's C drive
 QC_Run = "False"
-digest_year = "d22"
+year = "2020"
+month = "October"
 file = "t302-10_CPS-OCT2020.txt"
 
 
@@ -34,15 +35,16 @@ default_args = {
 }
 
 sas_script_arguments = {
-    "t104-10-CPS-MAR-2020.sas":{},
-    "t302-10_CPS-OCT2020.sas":{},
-    "t302-20_CPS-OCT2020.sas":{},
     "t302-60-CPS-OCT2020.sas":{},
-    "t501-50-CPS-MAR-2021-D21.sas":{},
-    "t501-60-70-CPS-MAR-2021-D21.sas":{},
-    "t501-80-CPS-MAR-2021-D21.sas":{},
-    "t501-85-90-CPS-MAR-2021-D21.sas":{}
                         }
+
+# "t104-10-CPS-MAR-2020.sas":{},
+#     "t302-10_CPS-OCT2020.sas":{},
+#     "t302-20_CPS-OCT2020.sas":{},
+# "t501-50-CPS-MAR-2021-D21.sas":{},
+#     "t501-60-70-CPS-MAR-2021-D21.sas":{},
+#     "t501-80-CPS-MAR-2021-D21.sas":{},
+#     "t501-85-90-CPS-MAR-2021-D21.sas":{}
 
 dag = DAG(dag_id='aris_cps_october_etl',
           default_args=default_args,
@@ -175,21 +177,21 @@ run_sas_scripts = PythonOperator(
     dag=dag
 )
 
-# qc_sas_logs = ShortCircuitOperator(
-#     task_id='qc_sas_logs',
-#     python_callable=qc_sas_logs,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+qc_sas_logs = ShortCircuitOperator(
+    task_id='qc_sas_logs',
+    python_callable=qc_sas_logs,
+    op_kwargs= {"qc_run": QC_Run, "file":file},
+    trigger_rule='all_success',
+    dag=dag
+)
 
-# qc_sas_output = ShortCircuitOperator(
-#     task_id='qc_sas_output',
-#     python_callable= qc_sas_output,
-#     op_kwargs= {"qc_run": QC_Run},
-#     trigger_rule='all_success',
-#     dag=dag
-# )
+qc_sas_output = ShortCircuitOperator(
+    task_id='qc_sas_output',
+    python_callable= qc_sas_output,
+    op_kwargs= {"qc_run": QC_Run, "Year":year, "Month":month, "file":file},
+    trigger_rule='all_success',
+    dag=dag
+)
 
 # ##Write Data to DB
 # write_to_db = PythonOperator(
@@ -219,7 +221,7 @@ run_sas_scripts = PythonOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 
-run_sas_scripts  
+run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs 
 
 # >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 # qc_sas_output >>  Label("Write to DB")  >> write_to_db
