@@ -136,6 +136,7 @@ def qc_sas_output(qc_run, year, month, file):
     Purpose: check output of sas output files
     '''
     command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + '&& python qc_sas_output.py ' + year  +  ' ' + month + ' '+ file 
+
     if(qc_run == "False"):
         return False
     else:
@@ -143,7 +144,7 @@ def qc_sas_output(qc_run, year, month, file):
         return True 
 
 
-def write_to_db(digest_year, year, month, file): 
+def write_to_db(year, month, file): 
     '''
     Purpose: Write Output file to the db
     '''
@@ -188,19 +189,19 @@ qc_sas_logs = ShortCircuitOperator(
 qc_sas_output = ShortCircuitOperator(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run, "Year":year, "Month":month, "file":file},
+    op_kwargs= {"qc_run": QC_Run, "year":year, "month":month, "file":file},
     trigger_rule='all_success',
     dag=dag
 )
 
-# ##Write Data to DB
-# write_to_db = PythonOperator(
-#     task_id='write_to_db',
-#     python_callable=write_to_db,
-#     op_kwargs= {"digest_year": digest_year},
-#     trigger_rule = "none_failed", 
-#     dag=dag
-# )
+##Write Data to DB
+write_to_db = PythonOperator(
+    task_id='write_to_db',
+    python_callable=write_to_db,
+    op_kwargs= {"year":year, "month":month, "file":file},
+    trigger_rule = "none_failed", 
+    dag=dag
+)
 
 # #QC Data written to DB
 # qc_database = ShortCircuitOperator(
@@ -222,8 +223,7 @@ qc_sas_output = ShortCircuitOperator(
 #gen_completion >> gen_completion_mrt
 
 run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+qc_sas_output >>  Label("Write to DB")  >> write_to_db
 
-# >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-# qc_sas_output >>  Label("Write to DB")  >> write_to_db
 # write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
 ##load_completion_mrt  
