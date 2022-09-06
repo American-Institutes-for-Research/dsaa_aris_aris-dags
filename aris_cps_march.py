@@ -19,7 +19,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\cps' # File housing ARIS repos on SAS s
 QC_Run = "True"
 year = "2020"
 month = "March"
-file = "t302-10_CPS-OCT2020.txt"
+file = "501-80-CPS-MAR-2021-D21.txt"
 
 
 # default args
