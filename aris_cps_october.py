@@ -16,7 +16,7 @@ from airflow.utils.edgemodifier import Label
 #Implement all the ones I added (year, month, file) to 
 
 SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\cps' # File housing ARIS repos on SAS server's C drive
-QC_Run = "False"
+QC_Run = "True"
 year = "2020"
 month = "October"
 file = "t302-10_CPS-OCT2020.txt"
