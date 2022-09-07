@@ -20,6 +20,7 @@ QC_Run = "True"
 year = "2020"
 month = "October"
 file = "t302-10_CPS-OCT2020.txt"
+sas_output_file = "302_10.xlsx"
 
 
 # default args
@@ -189,7 +190,7 @@ qc_sas_logs = ShortCircuitOperator(
 qc_sas_output = ShortCircuitOperator(
     task_id='qc_sas_output',
     python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run, "year":year, "month":month, "file":file},
+    op_kwargs= {"qc_run": QC_Run, "year":year, "month":month, "file":sas_output_file},
     trigger_rule='all_success',
     dag=dag
 )
@@ -198,7 +199,7 @@ qc_sas_output = ShortCircuitOperator(
 write_to_db = PythonOperator(
     task_id='write_to_db',
     python_callable=write_to_db,
-    op_kwargs= {"year":year, "month":month, "file":file},
+    op_kwargs= {"year":year, "month":month, "file":sas_output_file},
     trigger_rule = "none_failed", 
     dag=dag
 )
@@ -208,7 +209,7 @@ qc_database = ShortCircuitOperator(
     task_id = "qc_database",
     python_callable = qc_database_linking,
     op_kwargs= {"qc_run": QC_Run, 
-                "year":year, "month":month, "file":file},
+                "year":year, "month":month, "file":sas_output_file},
     trigger_rule='all_success',
     dag = dag
 )
