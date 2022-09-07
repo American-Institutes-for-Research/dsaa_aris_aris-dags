@@ -52,6 +52,31 @@ dag = DAG(dag_id='aris_cps_october_etl',
         #   schedule_interval='0,10,20,30,40,50 * * * *',
           dagrun_timeout=timedelta(seconds=3600))
 
+
+def check_airflow_to_azure():
+    ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
+    ssh_client = None
+    print(ssh)
+    try:
+        ssh_client = ssh.get_conn()
+        temp = ssh_client.load_system_host_keys()
+        print(temp)
+
+    finally:
+        if ssh_client:
+            ssh_client.close() 
+
+def check_azure_to_database():
+    command = 'cd ' +  SERVICE_GIT_DIR + '\\DB-Generation' + ' && python check_connections_azure_to_db.py' 
+    error_strings= ["Closing db connection"]
+    results = connect_to_server_qc(command, error_strings)
+    print(results)
+    if results == False:
+        results = True
+    else:
+        results = False
+    return (results)
+
 def connect_to_server(run_command):
     print(run_command)
     ssh = SSHHook(ssh_conn_id="svc_202205_sasdev")
@@ -172,6 +197,21 @@ def mrt_completion():
     connect_to_server(command)             
 
 # Generate Nonfiscal state from CCD Data with SAS
+
+check_airflow_to_azure = PythonOperator(
+    task_id = "check_airflow_to_azure",
+    python_callable = check_airflow_to_azure,
+    trigger_rule='all_success',
+    dag = dag
+)
+
+check_azure_to_database = ShortCircuitOperator(
+    task_id = "check_azure_to_database",
+    python_callable = check_azure_to_database,
+    trigger_rule='all_success',
+    dag = dag
+)
+
 run_sas_scripts = PythonOperator(
     task_id='run_sas_scripts',
     python_callable = compile_sas_scripts,
@@ -222,7 +262,7 @@ qc_database = ShortCircuitOperator(
 
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
-
+check_airflow_to_azure >>  Label("Checking Connections") >>  check_azure_to_database >> run_sas_scripts
 run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
 qc_sas_output >>  Label("Write to DB")  >> write_to_db
 write_to_db  >> Label("QC Check:Database") >> qc_database
