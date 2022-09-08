@@ -219,40 +219,40 @@ run_sas_scripts = PythonOperator(
     dag=dag
 )
 
-qc_sas_logs = ShortCircuitOperator(
-    task_id='qc_sas_logs',
-    python_callable=qc_sas_logs,
-    op_kwargs= {"qc_run": QC_Run, "file":file},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_logs = ShortCircuitOperator(
+#     task_id='qc_sas_logs',
+#     python_callable=qc_sas_logs,
+#     op_kwargs= {"qc_run": QC_Run, "file":file},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
-qc_sas_output = ShortCircuitOperator(
-    task_id='qc_sas_output',
-    python_callable= qc_sas_output,
-    op_kwargs= {"qc_run": QC_Run, "year":year, "month":month, "file":sas_output_file},
-    trigger_rule='all_success',
-    dag=dag
-)
+# qc_sas_output = ShortCircuitOperator(
+#     task_id='qc_sas_output',
+#     python_callable= qc_sas_output,
+#     op_kwargs= {"qc_run": QC_Run, "year":year, "month":month, "file":sas_output_file},
+#     trigger_rule='all_success',
+#     dag=dag
+# )
 
-##Write Data to DB
-write_to_db = PythonOperator(
-    task_id='write_to_db',
-    python_callable=write_to_db,
-    op_kwargs= {"year":year, "month":month, "file":sas_output_file},
-    trigger_rule = "none_failed", 
-    dag=dag
-)
+# ##Write Data to DB
+# write_to_db = PythonOperator(
+#     task_id='write_to_db',
+#     python_callable=write_to_db,
+#     op_kwargs= {"year":year, "month":month, "file":sas_output_file},
+#     trigger_rule = "none_failed", 
+#     dag=dag
+# )
 
-# #QC Data written to DB
-qc_database = ShortCircuitOperator(
-    task_id = "qc_database",
-    python_callable = qc_database_linking,
-    op_kwargs= {"qc_run": QC_Run, 
-                "year":year, "month":month, "file":sas_output_file},
-    trigger_rule='all_success',
-    dag = dag
-)
+# # #QC Data written to DB
+# qc_database = ShortCircuitOperator(
+#     task_id = "qc_database",
+#     python_callable = qc_database_linking,
+#     op_kwargs= {"qc_run": QC_Run, 
+#                 "year":year, "month":month, "file":sas_output_file},
+#     trigger_rule='all_success',
+#     dag = dag
+# )
 
 # load_completion_mrt = PythonOperator(
 #     task_id='load_mrt_completion',
@@ -263,8 +263,10 @@ qc_database = ShortCircuitOperator(
 # DAG Dependancy
 #gen_completion >> gen_completion_mrt
 check_airflow_to_azure >>  Label("Checking Connections") >>  check_azure_to_database >> run_sas_scripts
-run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
-qc_sas_output >>  Label("Write to DB")  >> write_to_db
-write_to_db  >> Label("QC Check:Database") >> qc_database
+
+
+# run_sas_scripts  >>  Label("QC Checks:Sas Output") >> qc_sas_logs >> qc_sas_output
+# qc_sas_output >>  Label("Write to DB")  >> write_to_db
+# write_to_db  >> Label("QC Check:Database") >> qc_database
 # write_to_db  >> Label("QC Check:Database") >> qc_database >> Label("Create Tables") 
 ##load_completion_mrt  
