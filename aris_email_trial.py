@@ -14,7 +14,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS
 # default args
 default_args = {
     'owner': 'airflow',
-    'email': ['mkruse@air.org', 'gchickering@air.org'],
+    'email': ['mtrinh@air.org', 'gchickering@air.org'],
     'depends_on_past': False,
     'email_on_failure': True,
     'email_on_retry': False,
@@ -43,9 +43,9 @@ temp_task = PythonOperator(
 
 send_email = EmailOperator( 
 task_id='send_email', 
-to=['gchickering@air.org', 'mtrinh@air.org'], 
+to='mtrinh@air.org', 
 subject='ingestion complete', 
-html_content= 'Attached is the latest sales report', 
+html_content= 'ARIS trial', 
 conn_id = 'smtp_default', 
 dag=dag
 )
