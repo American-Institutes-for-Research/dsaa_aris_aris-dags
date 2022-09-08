@@ -14,7 +14,7 @@ SERVICE_GIT_DIR = 'C:\\ARIS\\autoDigest\\ipeds' # File housing ARIS repos on SAS
 # default args
 default_args = {
     'owner': 'airflow',
-    'email': ['mtrinh@air.org', 'gchickering@air.org'],
+    'email': ['mkruse@air.org', 'gchickering@air.org'],
     'depends_on_past': False,
     'email_on_failure': True,
     'email_on_retry': False,
