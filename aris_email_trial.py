@@ -43,7 +43,7 @@ temp_task = PythonOperator(
 
 send_email = EmailOperator( 
 task_id='send_email', 
-to='gchickering@air.org', 
+to=['gchickering@air.org', 'mtrinh@air.org'], 
 subject='ingestion complete', 
 html_content= 'Attached is the latest sales report', 
 conn_id = 'smtp_default', 
