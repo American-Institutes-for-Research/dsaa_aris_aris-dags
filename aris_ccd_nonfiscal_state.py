@@ -240,7 +240,7 @@ def mrt_nonfiscal_state():
    
 ############# Operators ##################
 
-#Load Tables into DB
+##Check Connections
 check_airflow_to_azure = PythonOperator(
     task_id = "check_airflow_to_azure",
     python_callable = check_airflow_to_azure,
