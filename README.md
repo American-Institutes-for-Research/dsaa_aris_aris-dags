@@ -21,7 +21,9 @@ This repo contains all the scripts needed to run different parts of the ARIS pip
 To run these scripts login to the ARIS Airflow server found here.
 https://aris-airflow.uat.air.org/login/?next=https%3A%2F%2Faris-airflow.uat.air.org%2Fhome
 
+#Support
 
+For support, email mtrinhg@air.org or gchickering@air.org.
 
 Any additional information goes here. Could be related projects, helpful links to packages used, etc.
 - If any of the scripts that the pipeline calls need to be switched, these can be found in the github repo, https://github.com/American-Institutes-for-Research/dsaa_aris_autoDigest. 
