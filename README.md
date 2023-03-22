@@ -25,5 +25,6 @@ https://aris-airflow.uat.air.org/login/?next=https%3A%2F%2Faris-airflow.uat.air.
 
 For support, email mtrinhg@air.org or gchickering@air.org.
 
+## Additional Info
 Any additional information goes here. Could be related projects, helpful links to packages used, etc.
 - If any of the scripts that the pipeline calls need to be switched, these can be found in the github repo, https://github.com/American-Institutes-for-Research/dsaa_aris_autoDigest. 
