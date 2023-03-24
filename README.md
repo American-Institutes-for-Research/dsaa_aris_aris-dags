@@ -6,7 +6,7 @@
 |  |  |
 |---|---|
 | DSAA Team Lead | Mike Trinh | 
-| Project Tier | Tier 3 | 
+| Project Tier | Tier 2 | 
 | DSAA Team Members | Graham Chickering |
 | Client(s) | ARIS  |
 | Internal Client(s) |  |
