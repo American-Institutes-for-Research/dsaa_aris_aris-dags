@@ -28,3 +28,5 @@ For support, email mtrinhg@air.org or gchickering@air.org.
 ## Additional Info
 
 If any of the scripts that the pipeline calls need to be switched, these can be found in the github repo, https://github.com/American-Institutes-for-Research/dsaa_aris_autoDigest. 
+
+
